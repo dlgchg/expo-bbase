@@ -163,8 +163,10 @@ export async function createProject(projectName: string): Promise<void> {
         cwd: targetDir,
         timeout: 300_000, // 5 minute timeout
       });
-    } catch (installError) {
-      spinner.warn("yarn install 失败，请手动运行 yarn install");
+    } catch (installError: unknown) {
+      const errMsg = installError instanceof Error ? installError.message : String(installError);
+      spinner.warn("yarn install 失败，请手动安装依赖");
+      console.log(chalk.red(`  错误: ${errMsg}`));
       console.log(
         chalk.gray(`  cd ${projectName} && yarn install`)
       );
@@ -176,7 +178,7 @@ export async function createProject(projectName: string): Promise<void> {
     console.log();
     console.log(chalk.bold("  🎉 下一步："));
     console.log(chalk.white(`     cd ${projectName}`));
-    console.log(chalk.white("     yarn expo start"));
+    console.log(chalk.white("     npx expo start"));
     console.log();
 
     if (selectedModuleDefs.length > 0) {

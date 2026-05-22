@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Expo SDK 54+ scaffolding CLI with interactive module selection for React Native projects",
   "bin": {
-    "expo-bbase": "./bin/cli.js"
+    "expo-bbase": "bin/cli.js"
   },
   "files": [
     "dist",

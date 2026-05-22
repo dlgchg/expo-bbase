@@ -1,0 +1,115 @@
+classDiagram
+    class ModuleDefinition {
+        +string id
+        +string name
+        +string description
+        +string category
+        +string priority
+        +string[] dependencies
+        +boolean defaultSelected
+        +TemplateFile[] templates
+        +NpmDependency[] npmDependencies
+        +AppJsonPatch appJsonPatch
+        +LayoutPatch[] layoutPatches
+        +getTemplates() TemplateFile[]
+        +getDependencies() NpmDependency[]
+    }
+
+    class TemplateFile {
+        +string source
+        +string target
+        +boolean isEJS
+    }
+
+    class NpmDependency {
+        +string name
+        +string version
+        +boolean isDevDependency
+    }
+
+    class AppJsonPatch {
+        +Record plugins
+        +Record permissions
+        +Record extra
+    }
+
+    class LayoutPatch {
+        +string targetFile
+        +string importStatement
+        +string wrapperCode
+        +number order
+    }
+
+    class ModuleRegistry {
+        -Map~string,ModuleDefinition~ modules
+        +register(module: ModuleDefinition) void
+        +get(id: string) ModuleDefinition
+        +getAll() ModuleDefinition[]
+        +getByPriority(priority: string) ModuleDefinition[]
+        +resolveSelection(selected: string[]) string[]
+    }
+
+    class CLIContext {
+        +string projectName
+        +string targetDir
+        +string[] selectedModules
+        +string[] resolvedModules
+        +Record moduleConfig
+        +boolean skipInstall
+    }
+
+    class PromptsRunner {
+        +runProjectName(defaultName: string) Promise~string~
+        +runModuleSelection(modules: ModuleDefinition[]) Promise~string[]~
+    }
+
+    class StageValidate {
+        +execute(ctx: CLIContext) Promise~CLIContext~
+    }
+
+    class StageResolve {
+        +execute(ctx: CLIContext) Promise~CLIContext~
+    }
+
+    class StageRender {
+        +execute(ctx: CLIContext) Promise~CLIContext~
+    }
+
+    class StageWrite {
+        +execute(ctx: CLIContext) Promise~CLIContext~
+    }
+
+    class StageInstall {
+        +execute(ctx: CLIContext) Promise~CLIContext~
+    }
+
+    class Pipeline {
+        -Stage[] stages
+        +addStage(stage: Stage) void
+        +run(ctx: CLIContext) Promise~void~
+    }
+
+    class Logger {
+        +info(msg: string) void
+        +success(msg: string) void
+        +warn(msg: string) void
+        +error(msg: string) void
+        +step(msg: string) void
+    }
+
+    class PackageManager {
+        +detect(rootDir: string) string
+        +install(rootDir: string) Promise~void~
+    }
+
+    ModuleDefinition --> TemplateFile
+    ModuleDefinition --> NpmDependency
+    ModuleDefinition --> AppJsonPatch
+    ModuleDefinition --> LayoutPatch
+    ModuleRegistry --> ModuleDefinition
+    CLIContext --> ModuleDefinition
+    Pipeline --> StageValidate
+    Pipeline --> StageResolve
+    Pipeline --> StageRender
+    Pipeline --> StageWrite
+    Pipeline --> StageInstall

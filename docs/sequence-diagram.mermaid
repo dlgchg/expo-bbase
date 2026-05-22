@@ -1,0 +1,62 @@
+sequenceDiagram
+    participant User as 用户终端
+    participant CLI as bin/cli.ts
+    participant Main as src/index.ts
+    participant Prompts as PromptsRunner
+    participant Registry as ModuleRegistry
+    participant Pipeline as Pipeline
+    participant Validate as StageValidate
+    participant Resolve as StageResolve
+    participant Render as StageRender
+    participant Write as StageWrite
+    participant Install as StageInstall
+
+    User->>CLI: npx expo-bbase my-app
+    CLI->>Main: 启动主流程，传入 argv
+    Main->>Registry: 初始化注册所有模块
+    Registry-->>Main: 注册完成
+
+    Main->>Prompts: runProjectName("my-app")
+    Prompts->>User: ? Project name:
+    User-->>Prompts: my-app
+    Prompts-->>Main: projectName = "my-app"
+
+    Main->>Prompts: runModuleSelection(registry.getAll())
+    Prompts->>User: ? Choose modules: (checkbox)
+    User-->>Prompts: [network, state, storage, auth-google, i18n]
+    Prompts-->>Main: selectedModules = [...]
+
+    Main->>Pipeline: run(CLIContext)
+    
+    Pipeline->>Validate: execute(ctx)
+    Validate->>Validate: 校验项目名（npm 命名规则）
+    Validate->>Validate: 检查目标目录是否已存在
+    Validate-->>Pipeline: ctx（校验通过）
+
+    Pipeline->>Resolve: execute(ctx)
+    Resolve->>Registry: resolveSelection(selectedModules)
+    Registry->>Registry: 递归解析依赖（如 auth → storage）
+    Registry-->>Resolve: resolvedModules = [...]
+    Resolve-->>Pipeline: ctx（依赖已解析）
+
+    Pipeline->>Render: execute(ctx)
+    Render->>Render: 遍历 base 模板目录
+    Render->>Render: 遍历 resolvedModules 的模板
+    Render->>Render: EJS 编译（注入 ctx 变量）
+    Render->>Render: 合并 app.json patches
+    Render->>Render: 合并 layout patches
+    Render->>Render: 合并 package.json 依赖
+    Render-->>Pipeline: ctx（渲染结果缓存）
+
+    Pipeline->>Write: execute(ctx)
+    Write->>Write: 创建目标目录
+    Write->>Write: 写入所有渲染后的文件
+    Write-->>Pipeline: ctx（文件已写入）
+
+    Pipeline->>Install: execute(ctx)
+    Install->>Install: 检测包管理器（npm/yarn/pnpm/bun）
+    Install->>Install: 执行 npm install（除非 --skip-install）
+    Install-->>Pipeline: ctx（安装完成）
+
+    Pipeline-->>Main: 完成
+    Main->>User: ✅ 项目生成完成！下一步：cd my-app && npx expo start

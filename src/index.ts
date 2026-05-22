@@ -18,7 +18,7 @@ import type { ModuleDef, ProjectConfig } from "./types";
 import { execa } from "execa";
 
 /** CLI version — bump this when publishing */
-const CLI_VERSION = "1.3.5";
+const CLI_VERSION = "1.4.0";
 
 /** Config file name stored in project root */
 const CONFIG_FILE = ".expo-bbase.json";
@@ -192,6 +192,14 @@ export async function createProject(projectName: string): Promise<void> {
         const content = replaceTemplateVars(file.content, { projectName });
         await writeFile(filePath, content);
       }
+    }
+
+    // ─── Step 4.6: Copy assets directory (icon, splash, fonts) ──────
+    spinner.text = "Copying assets...";
+    const assetsSource = path.join(__dirname, "..", "templates", "assets");
+    const assetsTarget = path.join(targetDir, "assets");
+    if (fse.existsSync(assetsSource)) {
+      fse.copySync(assetsSource, assetsTarget);
     }
 
     // ─── Step 5: Generate and merge package.json ──────────────────────

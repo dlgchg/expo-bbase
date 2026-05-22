@@ -4,29 +4,12 @@ import { lines } from "../utils/lines";
 const animationModule: ModuleDef = {
   id: "animation",
   name: "动画/手势",
-  description: "Reanimated 4 + Gesture Handler + Worklets",
+  description: "Reanimated 4 + Gesture Handler + Worklets（已默认包含，此模块仅添加封装代码）",
   defaultChecked: false,
-  dependencies: {
-    "react-native-reanimated": "~4.1.1",
-    "react-native-gesture-handler": "~2.28.0",
-    "react-native-worklets": "~0.5.1",
-  },
+  // Dependencies are already included in base package.json
+  dependencies: {},
   devDependencies: {},
   files: [
-    {
-      path: "babel.config.js",
-      content: `module.exports = function (api) {
-  api.cache(true);
-  return {
-    presets: [
-      ["babel-preset-expo", { jsxImportSource: "nativewind" }],
-      "nativewind/babel",
-    ],
-    plugins: [],
-  };
-};
-`,
-    },
     {
       path: "modules/animation/index.ts",
       content: lines(
@@ -83,9 +66,6 @@ const animationModule: ModuleDef = {
       ),
     },
   ],
-  // When animation module is selected, babel.config.js is overwritten above
-  // to re-enable babel-preset-expo's auto-detection of reanimated/worklets plugins
-  // (since those packages will be installed as dependencies)
   babelPlugins: [],
 };
 

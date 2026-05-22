@@ -24,7 +24,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    NunitoBold: require("../assets/fonts/Nunito-Bold.ttf"),
   });
 
   useEffect(() => {
@@ -382,7 +382,9 @@ export {};
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
     "splash": {
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -391,11 +393,19 @@ export {};
       "bundleIdentifier": "com.${projectName}.app"
     },
     "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
       "package": "com.${projectName}.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "react-native-reanimated"
     ]
   }
 }
@@ -406,25 +416,14 @@ export {};
     {
       path: "tsconfig.json",
       content: `{
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "lib": ["ESNext"],
     "strict": true,
-    "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
     "paths": {
       "@/*": ["./*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts", "nativewind-env.d.ts"]
 }
 `,
     },
@@ -436,7 +435,8 @@ export {};
 module.exports = {
   content: [
     "./app/**/*.{js,jsx,ts,tsx}",
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./components/**/*.{js,jsx,ts,tsx}",
+    "./modules/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
   theme: {
@@ -502,7 +502,7 @@ module.exports = withNativeWind(config, { input: "./global.css" });
   api.cache(true);
   return {
     presets: [
-      ["babel-preset-expo", { jsxImportSource: "nativewind", reanimated: false, worklets: false }],
+      ["babel-preset-expo", { jsxImportSource: "nativewind" }],
       "nativewind/babel",
     ],
     plugins: [],

@@ -404,8 +404,7 @@ export {};
     },
     "plugins": [
       "expo-router",
-      "expo-splash-screen",
-      "react-native-reanimated"
+      "expo-splash-screen"
     ]
   }
 }

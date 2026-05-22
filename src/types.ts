@@ -20,4 +20,5 @@ export interface ModuleDef {
 export interface ProjectConfig {
   projectName: string;
   selectedModules: string[];
+  cliVersion: string;
 }

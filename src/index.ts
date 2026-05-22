@@ -4,26 +4,35 @@ import ora from "ora";
 import path from "path";
 import fse from "fs-extra";
 import { Command } from "commander";
-import { registerCreateCommand } from "./commands/create";
-import { modules, getModulesByIds } from "./modules";
+import {
+  registerCreateCommand,
+  registerUpgradeCommand,
+  registerAddCommand,
+} from "./commands/create";
+import { modules, getModulesByIds, getModuleById } from "./modules";
 import { generateBaseTemplates } from "./templates/base";
 import { writeFile, writeJson, replaceTemplateVars } from "./utils/file";
-import { generateBasePackageJson } from "./utils/package";
-import type { ModuleDef } from "./types";
+import { generateBasePackageJson, mergeDependencies } from "./utils/package";
+import type { ModuleDef, ProjectConfig } from "./types";
 import { execa } from "execa";
 
-/**
- * Main entry point for the CLI.
- */
+/** CLI version — bump this when publishing */
+const CLI_VERSION = "1.2.0";
+
+/** Config file name stored in project root */
+const CONFIG_FILE = ".expo-bbase.json";
+
+// ─── CLI Entry Point ──────────────────────────────────────────────────────
+
 export async function run(): Promise<void> {
   const program = new Command();
 
   program
     .name("expo-bbase")
-    .description("Expo SDK 54+ 脚手架 CLI 工具")
-    .version("1.0.0");
+    .description("Expo SDK 54+ scaffolding CLI tool")
+    .version(CLI_VERSION);
 
-  // Register the default action: npx expo-bbase <project-name>
+  // Default action: npx expo-bbase <project-name>
   program
     .argument("[project-name]", "Name of the project to create")
     .action(async (projectName?: string) => {
@@ -36,20 +45,41 @@ export async function run(): Promise<void> {
     });
 
   registerCreateCommand(program);
+  registerUpgradeCommand(program);
+  registerAddCommand(program);
 
   await program.parseAsync(process.argv);
 }
 
-/**
- * Create a new Expo project with interactive module selection.
- */
+// ─── Project Config Helpers ───────────────────────────────────────────────
+
+async function readProjectConfig(
+  targetDir: string
+): Promise<ProjectConfig | null> {
+  const configPath = path.join(targetDir, CONFIG_FILE);
+  if (!(await fse.pathExists(configPath))) {
+    return null;
+  }
+  return fse.readJson(configPath) as Promise<ProjectConfig>;
+}
+
+async function writeProjectConfig(
+  targetDir: string,
+  config: ProjectConfig
+): Promise<void> {
+  const configPath = path.join(targetDir, CONFIG_FILE);
+  await writeJson(configPath, config);
+}
+
+// ─── Create Project ───────────────────────────────────────────────────────
+
 export async function createProject(projectName: string): Promise<void> {
   console.log();
   console.log(
     chalk.bold.cyan("  ╔══════════════════════════════════════╗")
   );
   console.log(
-    chalk.bold.cyan("  ║     expo-bbase — Expo 脚手架工具      ║")
+    chalk.bold.cyan("  ║     expo-bbase — Expo Scaffolding     ║")
   );
   console.log(
     chalk.bold.cyan("  ╚══════════════════════════════════════╝")
@@ -66,15 +96,14 @@ export async function createProject(projectName: string): Promise<void> {
   const { selectedModules } = await prompts({
     type: "multiselect",
     name: "selectedModules",
-    message: "选择需要的功能模块（空格切换，回车确认）",
+    message: "Select modules (Space to toggle, Enter to confirm)",
     choices,
-    hint: "- 空格切换选择 · a 全选/取消 · 回车确认",
+    hint: "- Space toggle · a select all/none · Enter confirm",
     instructions: false,
   });
 
-  // User cancelled the prompt
   if (selectedModules === undefined) {
-    console.log(chalk.yellow("\n已取消创建项目。"));
+    console.log(chalk.yellow("\nCancelled."));
     process.exit(0);
   }
 
@@ -82,51 +111,42 @@ export async function createProject(projectName: string): Promise<void> {
   const targetDir = path.resolve(process.cwd(), projectName);
 
   console.log();
-  console.log(chalk.white(`  📦 项目名称: ${chalk.bold(projectName)}`));
-  console.log(
-    chalk.white(`  📂 目标路径: ${chalk.gray(targetDir)}`)
-  );
+  console.log(chalk.white(`  📦 Project: ${chalk.bold(projectName)}`));
+  console.log(chalk.white(`  📂 Path:    ${chalk.gray(targetDir)}`));
   console.log(
     chalk.white(
-      `  🧩 选择模块: ${chalk.green(selectedModuleDefs.map((m) => m.name).join(", ") || "无")}`
+      `  🧩 Modules: ${chalk.green(selectedModuleDefs.map((m) => m.name).join(", ") || "none")}`
     )
   );
   console.log();
 
   // ─── Step 2: Create project directory and write base files ─────────
-  const spinner = ora("正在创建项目...").start();
+  const spinner = ora("Creating project...").start();
 
   try {
-    // Generate base template files
     const baseTemplates = generateBaseTemplates(projectName);
 
-    // Write all base files
     for (const file of baseTemplates) {
       const filePath = path.join(targetDir, file.path);
-      const content = replaceTemplateVars(file.content, {
-        projectName,
-      });
+      const content = replaceTemplateVars(file.content, { projectName });
       await writeFile(filePath, content);
     }
 
-    spinner.text = "正在写入模块文件...";
+    spinner.text = "Writing module files...";
 
     // ─── Step 3: Write module template files ──────────────────────────
     for (const mod of selectedModuleDefs) {
       for (const file of mod.files) {
         const filePath = path.join(targetDir, file.path);
-        const content = replaceTemplateVars(file.content, {
-          projectName,
-        });
+        const content = replaceTemplateVars(file.content, { projectName });
         await writeFile(filePath, content);
       }
     }
 
     // ─── Step 4: Generate and merge package.json ──────────────────────
-    spinner.text = "正在生成 package.json...";
+    spinner.text = "Generating package.json...";
     const pkgJson = generateBasePackageJson(projectName);
 
-    // Collect all dependencies from selected modules
     const allDeps: Record<string, string> = {};
     const allDevDeps: Record<string, string> = {};
     for (const mod of selectedModuleDefs) {
@@ -134,7 +154,6 @@ export async function createProject(projectName: string): Promise<void> {
       Object.assign(allDevDeps, mod.devDependencies);
     }
 
-    // Merge into base package.json
     Object.assign(pkgJson.dependencies as Record<string, string>, allDeps);
     Object.assign(
       pkgJson.devDependencies as Record<string, string>,
@@ -145,55 +164,383 @@ export async function createProject(projectName: string): Promise<void> {
     await writeJson(pkgPath, pkgJson);
 
     // ─── Step 5: Update app.json with plugin configurations ──────────
-    spinner.text = "正在配置 app.json...";
+    spinner.text = "Configuring app.json...";
     await updateAppJson(targetDir, selectedModuleDefs, projectName);
 
     // ─── Step 6: Update babel.config.js with additional plugins ───────
-    spinner.text = "正在配置 Babel...";
+    spinner.text = "Configuring Babel...";
     await updateBabelConfig(targetDir, selectedModuleDefs);
 
     // ─── Step 7: Update app/_layout.tsx with module providers/imports ─
-    spinner.text = "正在配置入口文件...";
+    spinner.text = "Configuring layout...";
     await updateLayoutFile(targetDir, selectedModuleDefs);
 
-    // ─── Step 8: Run yarn install ─────────────────────────────────────
-    spinner.text = "正在安装依赖 (yarn install)...";
+    // ─── Step 8: Write .expo-bbase.json config ───────────────────────
+    await writeProjectConfig(targetDir, {
+      projectName,
+      selectedModules: selectedModules as string[],
+      cliVersion: CLI_VERSION,
+    });
+
+    // ─── Step 9: Run yarn install ─────────────────────────────────────
+    spinner.text = "Installing dependencies (yarn install)...";
     try {
       await execa("yarn", ["install"], {
         cwd: targetDir,
-        timeout: 300_000, // 5 minute timeout
+        timeout: 300_000,
       });
     } catch (installError: unknown) {
-      const errMsg = installError instanceof Error ? installError.message : String(installError);
-      spinner.warn("yarn install 失败，请手动安装依赖");
-      console.log(chalk.red(`  错误: ${errMsg}`));
-      console.log(
-        chalk.gray(`  cd ${projectName} && yarn install`)
-      );
+      const errMsg =
+        installError instanceof Error
+          ? installError.message
+          : String(installError);
+      spinner.warn("yarn install failed, please install manually");
+      console.log(chalk.red(`  Error: ${errMsg}`));
+      console.log(chalk.gray(`  cd ${projectName} && yarn install`));
     }
 
     // ─── Done! ────────────────────────────────────────────────────────
-    spinner.succeed(chalk.green("项目创建成功！"));
+    spinner.succeed(chalk.green("Project created!"));
 
     console.log();
-    console.log(chalk.bold("  🎉 下一步："));
+    console.log(chalk.bold("  🎉 Next steps:"));
     console.log(chalk.white(`     cd ${projectName}`));
     console.log(chalk.white("     npx expo start"));
     console.log();
 
     if (selectedModuleDefs.length > 0) {
-      console.log(chalk.bold("  📋 已选模块："));
+      console.log(chalk.bold("  📋 Selected modules:"));
       for (const mod of selectedModuleDefs) {
         console.log(chalk.white(`     ✓ ${mod.name}`));
       }
       console.log();
     }
   } catch (error) {
-    spinner.fail(chalk.red("项目创建失败"));
+    spinner.fail(chalk.red("Project creation failed"));
     console.error(error);
     process.exit(1);
   }
 }
+
+// ─── Upgrade Project ─────────────────────────────────────────────────────
+
+export async function upgradeProject(targetDir: string): Promise<void> {
+  console.log();
+  console.log(
+    chalk.bold.cyan("  ╔══════════════════════════════════════╗")
+  );
+  console.log(
+    chalk.bold.cyan("  ║     expo-bbase — Upgrade              ║")
+  );
+  console.log(
+    chalk.bold.cyan("  ╚══════════════════════════════════════╝")
+  );
+  console.log();
+
+  const absDir = path.resolve(targetDir);
+  const config = await readProjectConfig(absDir);
+
+  if (!config) {
+    console.error(
+      chalk.red(
+        `  ✖ No ${CONFIG_FILE} found in ${absDir}\n` +
+          `  This directory doesn't appear to be an expo-bbase project.\n` +
+          `  If it is, run "expo-bbase add" to register modules.`
+      )
+    );
+    process.exit(1);
+  }
+
+  console.log(
+    chalk.white(`  📂 Project:    ${chalk.bold(config.projectName)}`)
+  );
+  console.log(
+    chalk.white(`  📋 CLI version: ${chalk.gray(config.cliVersion || "unknown")} → ${chalk.green(CLI_VERSION)}`)
+  );
+  console.log(
+    chalk.white(
+      `  🧩 Modules:    ${chalk.green(config.selectedModules.join(", ") || "none")}`
+    )
+  );
+  console.log();
+
+  const spinner = ora("Upgrading project...").start();
+
+  try {
+    const selectedModuleDefs = getModulesByIds(config.selectedModules);
+
+    // ─── Step 1: Update module files (overwrite) ──────────────────────
+    spinner.text = "Updating module files...";
+    for (const mod of selectedModuleDefs) {
+      for (const file of mod.files) {
+        const filePath = path.join(absDir, file.path);
+        const content = replaceTemplateVars(file.content, {
+          projectName: config.projectName,
+        });
+        await writeFile(filePath, content);
+      }
+    }
+
+    // ─── Step 2: Update dependencies in package.json ─────────────────
+    spinner.text = "Updating dependencies...";
+    const allDeps: Record<string, string> = {};
+    const allDevDeps: Record<string, string> = {};
+    for (const mod of selectedModuleDefs) {
+      Object.assign(allDeps, mod.dependencies);
+      Object.assign(allDevDeps, mod.devDependencies);
+    }
+
+    // Also update base dependencies
+    const basePkg = generateBasePackageJson(config.projectName);
+    Object.assign(allDeps, basePkg.dependencies as Record<string, string>);
+    Object.assign(
+      allDevDeps,
+      basePkg.devDependencies as Record<string, string>
+    );
+
+    const pkgPath = path.join(absDir, "package.json");
+    await mergeDependencies(pkgPath, allDeps, allDevDeps);
+
+    // ─── Step 3: Update app.json plugins ─────────────────────────────
+    spinner.text = "Updating app.json...";
+    await updateAppJson(absDir, selectedModuleDefs, config.projectName);
+
+    // ─── Step 4: Update babel.config.js ───────────────────────────────
+    spinner.text = "Updating Babel config...";
+    await updateBabelConfig(absDir, selectedModuleDefs);
+
+    // ─── Step 5: Update _layout.tsx ──────────────────────────────────
+    spinner.text = "Updating layout...";
+    await updateLayoutFile(absDir, selectedModuleDefs);
+
+    // ─── Step 6: Update .expo-bbase.json ─────────────────────────────
+    config.cliVersion = CLI_VERSION;
+    await writeProjectConfig(absDir, config);
+
+    // ─── Step 7: yarn install ─────────────────────────────────────────
+    spinner.text = "Installing updated dependencies (yarn install)...";
+    try {
+      await execa("yarn", ["install"], {
+        cwd: absDir,
+        timeout: 300_000,
+      });
+    } catch (installError: unknown) {
+      const errMsg =
+        installError instanceof Error
+          ? installError.message
+          : String(installError);
+      spinner.warn("yarn install failed, please install manually");
+      console.log(chalk.red(`  Error: ${errMsg}`));
+    }
+
+    spinner.succeed(chalk.green("Project upgraded!"));
+
+    console.log();
+    console.log(chalk.bold("  📋 Upgrade summary:"));
+    console.log(chalk.white(`     CLI:      ${chalk.gray(config.cliVersion)} (before)`));
+    console.log(chalk.white(`     Modules:  ${chalk.green(config.selectedModules.join(", "))}`));
+    console.log();
+    console.log(chalk.bold("  🎉 Run your project:"));
+    console.log(chalk.white("     npx expo start"));
+    console.log();
+  } catch (error) {
+    spinner.fail(chalk.red("Upgrade failed"));
+    console.error(error);
+    process.exit(1);
+  }
+}
+
+// ─── Add Modules ─────────────────────────────────────────────────────────
+
+export async function addModule(
+  moduleIds: string[],
+  targetDir: string
+): Promise<void> {
+  console.log();
+
+  const absDir = path.resolve(targetDir);
+  let config = await readProjectConfig(absDir);
+
+  // If no config exists, try to infer from package.json
+  if (!config) {
+    const pkgPath = path.join(absDir, "package.json");
+    if (!(await fse.pathExists(pkgPath))) {
+      console.error(
+        chalk.red(`  ✖ No package.json found in ${absDir}`)
+      );
+      process.exit(1);
+    }
+    const pkg = await fse.readJson(pkgPath);
+    config = {
+      projectName: pkg.name || path.basename(absDir),
+      selectedModules: [],
+      cliVersion: CLI_VERSION,
+    };
+    console.log(
+      chalk.yellow(
+        `  ⚠ No ${CONFIG_FILE} found. Creating one for project "${config.projectName}".`
+      )
+    );
+  }
+
+  // Interactive module selection if no module IDs provided
+  if (moduleIds.length === 0) {
+    const availableModules = modules.filter(
+      (m) => !config!.selectedModules.includes(m.id)
+    );
+
+    if (availableModules.length === 0) {
+      console.log(chalk.green("  ✓ All modules are already installed!"));
+      process.exit(0);
+    }
+
+    const choices = availableModules.map((m) => ({
+      title: `${chalk.bold(m.name)} — ${chalk.gray(m.description)}`,
+      value: m.id,
+      selected: false,
+    }));
+
+    const { selected } = await prompts({
+      type: "multiselect",
+      name: "selected",
+      message: "Select modules to add (Space to toggle, Enter to confirm)",
+      choices,
+      hint: "- Space toggle · a select all/none · Enter confirm",
+      instructions: false,
+    });
+
+    if (selected === undefined || selected.length === 0) {
+      console.log(chalk.yellow("  No modules selected."));
+      process.exit(0);
+    }
+
+    moduleIds = selected as string[];
+  }
+
+  // Validate module IDs
+  const invalidIds = moduleIds.filter((id) => !getModuleById(id));
+  if (invalidIds.length > 0) {
+    console.error(
+      chalk.red(`  ✖ Unknown module(s): ${invalidIds.join(", ")}`)
+    );
+    console.log(
+      chalk.gray(
+        `  Available: ${modules.map((m) => m.id).join(", ")}`
+      )
+    );
+    process.exit(1);
+  }
+
+  // Filter out already installed modules
+  const newModuleIds = moduleIds.filter(
+    (id) => !config!.selectedModules.includes(id)
+  );
+  if (newModuleIds.length === 0) {
+    console.log(
+      chalk.yellow("  All specified modules are already installed.")
+    );
+    process.exit(0);
+  }
+
+  const newModuleDefs = getModulesByIds(newModuleIds);
+
+  console.log(
+    chalk.white(`  📂 Project:  ${chalk.bold(config.projectName)}`)
+  );
+  console.log(
+    chalk.white(
+      `  ➕ Adding:   ${chalk.green(newModuleDefs.map((m) => m.name).join(", "))}`
+    )
+  );
+  console.log();
+
+  const spinner = ora("Adding modules...").start();
+
+  try {
+    // ─── Step 1: Write module files ───────────────────────────────────
+    spinner.text = "Writing module files...";
+    for (const mod of newModuleDefs) {
+      for (const file of mod.files) {
+        const filePath = path.join(absDir, file.path);
+        const content = replaceTemplateVars(file.content, {
+          projectName: config!.projectName,
+        });
+        await writeFile(filePath, content);
+      }
+    }
+
+    // ─── Step 2: Merge dependencies into existing package.json ───────
+    spinner.text = "Updating dependencies...";
+    const allDeps: Record<string, string> = {};
+    const allDevDeps: Record<string, string> = {};
+    for (const mod of newModuleDefs) {
+      Object.assign(allDeps, mod.dependencies);
+      Object.assign(allDevDeps, mod.devDependencies);
+    }
+
+    const pkgPath = path.join(absDir, "package.json");
+    await mergeDependencies(pkgPath, allDeps, allDevDeps);
+
+    // ─── Step 3: Update app.json plugins ─────────────────────────────
+    spinner.text = "Updating app.json...";
+    const existingModules = getModulesByIds(config!.selectedModules);
+    await updateAppJson(
+      absDir,
+      [...existingModules, ...newModuleDefs],
+      config!.projectName
+    );
+
+    // ─── Step 4: Update babel.config.js ─────────────────────────────
+    spinner.text = "Updating Babel config...";
+    await updateBabelConfig(absDir, newModuleDefs);
+
+    // ─── Step 5: Update _layout.tsx ──────────────────────────────────
+    spinner.text = "Updating layout...";
+    await updateLayoutFile(absDir, newModuleDefs);
+
+    // ─── Step 6: Update .expo-bbase.json ─────────────────────────────
+    config!.selectedModules.push(...newModuleIds);
+    config!.cliVersion = CLI_VERSION;
+    await writeProjectConfig(absDir, config!);
+
+    // ─── Step 7: yarn install ─────────────────────────────────────────
+    spinner.text = "Installing dependencies (yarn install)...";
+    try {
+      await execa("yarn", ["install"], {
+        cwd: absDir,
+        timeout: 300_000,
+      });
+    } catch (installError: unknown) {
+      const errMsg =
+        installError instanceof Error
+          ? installError.message
+          : String(installError);
+      spinner.warn("yarn install failed, please install manually");
+      console.log(chalk.red(`  Error: ${errMsg}`));
+    }
+
+    spinner.succeed(chalk.green("Modules added!"));
+
+    console.log();
+    console.log(chalk.bold("  📋 Added modules:"));
+    for (const mod of newModuleDefs) {
+      console.log(chalk.white(`     ✓ ${mod.name} (${mod.id})`));
+    }
+    console.log();
+    console.log(chalk.bold("  🧩 All installed modules:"));
+    for (const id of config!.selectedModules) {
+      const m = getModuleById(id);
+      console.log(chalk.white(`     • ${m?.name || id}`));
+    }
+    console.log();
+  } catch (error) {
+    spinner.fail(chalk.red("Failed to add modules"));
+    console.error(error);
+    process.exit(1);
+  }
+}
+
+// ─── Shared Helpers ───────────────────────────────────────────────────────
 
 /**
  * Update the generated app.json with plugin configurations from selected modules.
@@ -201,12 +548,14 @@ export async function createProject(projectName: string): Promise<void> {
 async function updateAppJson(
   targetDir: string,
   selectedModules: ModuleDef[],
-  projectName: string
+  _projectName: string
 ): Promise<void> {
   const appJsonPath = path.join(targetDir, "app.json");
+  if (!(await fse.pathExists(appJsonPath))) {
+    return;
+  }
   const appJson = await fse.readJson(appJsonPath);
 
-  // Collect all plugin configs
   const existingPlugins: (string | [string, Record<string, unknown>])[] =
     appJson.expo?.plugins || [];
 
@@ -217,7 +566,6 @@ async function updateAppJson(
         | [string, Record<string, unknown>]
       )[];
       for (const plugin of modulePlugins) {
-        // Avoid duplicate plugin entries
         const pluginName =
           typeof plugin === "string" ? plugin : plugin[0];
         const exists = existingPlugins.some((p) =>
@@ -242,26 +590,32 @@ async function updateBabelConfig(
   selectedModules: ModuleDef[]
 ): Promise<void> {
   const babelPath = path.join(targetDir, "babel.config.js");
+  if (!(await fse.pathExists(babelPath))) {
+    return;
+  }
 
   let content = await fse.readFile(babelPath, "utf-8");
 
   const extraPlugins: string[] = [];
   for (const mod of selectedModules) {
-    if (mod.babelPlugins) {
+    if (mod.babelPlugins && mod.babelPlugins.length > 0) {
       extraPlugins.push(...mod.babelPlugins);
     }
   }
 
   if (extraPlugins.length > 0) {
-    // Insert additional plugins before the closing bracket of the plugins array
-    const pluginStrings = extraPlugins
-      .map((p) => `    "${p}"`)
-      .join(",\n");
-    content = content.replace(
-      /plugins:\s*\[([^\]]*)\]/,
-      `plugins: [$1${pluginStrings ? ",\n" + pluginStrings : ""}]`
-    );
-    await fse.writeFile(babelPath, content, "utf-8");
+    // Filter out plugins that are already in the config
+    const pluginsToAdd = extraPlugins.filter((p) => !content.includes(p));
+    if (pluginsToAdd.length > 0) {
+      const pluginStrings = pluginsToAdd
+        .map((p) => `    "${p}"`)
+        .join(",\n");
+      content = content.replace(
+        /plugins:\s*\[([^\]]*)\]/,
+        `plugins: [$1${pluginStrings ? ",\n" + pluginStrings : ""}]`
+      );
+      await fse.writeFile(babelPath, content, "utf-8");
+    }
   }
 }
 
@@ -273,28 +627,36 @@ async function updateLayoutFile(
   selectedModules: ModuleDef[]
 ): Promise<void> {
   const layoutPath = path.join(targetDir, "app/_layout.tsx");
-  const fs = fse;
+  if (!(await fse.pathExists(layoutPath))) {
+    return;
+  }
 
-  let content = await fs.readFile(layoutPath, "utf-8");
+  let content = await fse.readFile(layoutPath, "utf-8");
 
-  // Collect imports and providers
   const extraImports: string[] = [];
   const extraProviderPairs: { open: string; close: string }[] = [];
 
   for (const mod of selectedModules) {
     if (mod.layoutImports) {
-      extraImports.push(...mod.layoutImports);
+      // Only add imports that don't already exist
+      for (const imp of mod.layoutImports) {
+        if (!content.includes(imp)) {
+          extraImports.push(imp);
+        }
+      }
     }
     if (mod.layoutProviders) {
       for (const provider of mod.layoutProviders) {
-        // Parse opening and closing tags
         const match = provider.match(/^<(\w+)/);
         if (match) {
           const tagName = match[1];
-          extraProviderPairs.push({
-            open: `      ${provider}`,
-            close: `      </${tagName}>`,
-          });
+          // Only add providers that don't already exist
+          if (!content.includes(`<${tagName}`)) {
+            extraProviderPairs.push({
+              open: `      ${provider}`,
+              close: `      </${tagName}>`,
+            });
+          }
         }
       }
     }
@@ -304,7 +666,6 @@ async function updateLayoutFile(
     return;
   }
 
-  // Add imports after the existing import block
   if (extraImports.length > 0) {
     const lastImportIndex = content.lastIndexOf("import ");
     const lineEndIndex = content.indexOf("\n", lastImportIndex);
@@ -315,34 +676,31 @@ async function updateLayoutFile(
       content.slice(lineEndIndex + 1);
   }
 
-  // Wrap the return statement content with providers
   if (extraProviderPairs.length > 0) {
-    // Find the innermost returned JSX (the <Stack> component)
     const returnMatch = content.indexOf("return (");
     if (returnMatch !== -1) {
-      // Build provider wrappers
-      const openingProviders = extraProviderPairs.map((p) => p.open).join("\n");
+      const openingProviders = extraProviderPairs
+        .map((p) => p.open)
+        .join("\n");
       const closingProviders = extraProviderPairs
         .reverse()
         .map((p) => p.close)
         .join("\n");
 
-      // Find <ThemeProvider> opening and closing
       const themeProviderOpen = content.indexOf("<ThemeProvider");
       const themeProviderClose = content.lastIndexOf("</ThemeProvider>");
 
       if (themeProviderOpen !== -1 && themeProviderClose !== -1) {
-        // Insert opening providers before <ThemeProvider>
         content =
           content.slice(0, themeProviderOpen) +
           openingProviders +
           "\n" +
           content.slice(themeProviderOpen);
 
-        // Recalculate position after insertion
         const newThemeProviderClose =
           content.lastIndexOf("</ThemeProvider>");
-        const afterClose = newThemeProviderClose + "</ThemeProvider>".length;
+        const afterClose =
+          newThemeProviderClose + "</ThemeProvider>".length;
         content =
           content.slice(0, afterClose) +
           "\n" +
@@ -352,10 +710,11 @@ async function updateLayoutFile(
     }
   }
 
-  await fs.writeFile(layoutPath, content, "utf-8");
+  await fse.writeFile(layoutPath, content, "utf-8");
 }
 
-// Run the CLI when executed directly
+// ─── Run ───────────────────────────────────────────────────────────────────
+
 run().catch((error) => {
   console.error(chalk.red("Fatal error:"), error);
   process.exit(1);

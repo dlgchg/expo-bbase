@@ -12,7 +12,7 @@ const imageModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/media/CachedImage.tsx",
+      path: "modules/media/CachedImage.tsx",
       content: lines(
         'import React, { useMemo } from "react";',
         'import { Image, type ImageProps } from "expo-image";',

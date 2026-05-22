@@ -12,7 +12,7 @@ const webviewModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/webview/WebViewContainer.tsx",
+      path: "modules/webview/WebViewContainer.tsx",
       content: lines(
         'import React, { useCallback, useRef } from "react";',
         'import { View, StyleSheet, ActivityIndicator } from "react-native";',
@@ -120,7 +120,7 @@ const webviewModule: ModuleDef = {
       ),
     },
     {
-      path: "src/modules/webview/bridge.ts",
+      path: "modules/webview/bridge.ts",
       content: lines(
         "export interface BridgeMessage {",
         "  type: string;",

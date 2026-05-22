@@ -12,11 +12,11 @@ const stateModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/stores/index.ts",
+      path: "stores/index.ts",
       content: lines('export { useUserStore } from "./slices/userSlice";'),
     },
     {
-      path: "src/stores/slices/userSlice.ts",
+      path: "stores/slices/userSlice.ts",
       content: lines(
         'import { create } from "zustand";',
         'import { persist, createJSONStorage } from "zustand/middleware";',

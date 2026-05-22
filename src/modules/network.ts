@@ -12,7 +12,7 @@ const networkModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/api/client.ts",
+      path: "api/client.ts",
       content: lines(
         'import { Alert } from "react-native";',
         "",
@@ -184,7 +184,7 @@ const networkModule: ModuleDef = {
       ),
     },
     {
-      path: "src/api/interceptors.ts",
+      path: "api/interceptors.ts",
       content: lines(
         'import type { RequestConfig } from "./client";',
         'import { apiClient } from "./client";',
@@ -232,7 +232,7 @@ const networkModule: ModuleDef = {
       ),
     },
     {
-      path: "src/api/types.ts",
+      path: "api/types.ts",
       content: lines(
         "/** Common API response types */",
         "",
@@ -278,7 +278,7 @@ const networkModule: ModuleDef = {
       ),
     },
     {
-      path: "src/api/queries.ts",
+      path: "api/queries.ts",
       content: lines(
         'import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";',
         'import { apiClient, handleApiError } from "./client";',

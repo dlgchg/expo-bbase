@@ -17,7 +17,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 
-import { Colors } from "@/src/constants/Colors";
+import { Colors } from "@/constants/Colors";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -55,8 +55,8 @@ export default function RootLayout() {
       content: `import { Tabs } from "expo-router";
 import { Platform } from "react-native";
 
-import { Colors } from "@/src/constants/Colors";
-import { useColorScheme } from "@/src/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -101,9 +101,9 @@ export default function TabLayout() {
     {
       path: "app/(tabs)/index.tsx",
       content: `import { Image, StyleSheet, Platform } from "react-native";
-import { HelloWave } from "@/src/components/HelloWave";
-import { ThemedText } from "@/src/components/Themed";
-import { ThemedView } from "@/src/components/Themed";
+import { HelloWave } from "@/components/HelloWave";
+import { ThemedText } from "@/components/Themed";
+import { ThemedView } from "@/components/Themed";
 import { Link } from "expo-router";
 
 export default function HomeScreen() {
@@ -160,8 +160,8 @@ const styles = StyleSheet.create({
     {
       path: "app/(tabs)/explore.tsx",
       content: `import { StyleSheet, Image, Platform } from "react-native";
-import { ThemedText } from "@/src/components/Themed";
-import { ThemedView } from "@/src/components/Themed";
+import { ThemedText } from "@/components/Themed";
+import { ThemedView } from "@/components/Themed";
 
 export default function ExploreScreen() {
   return (
@@ -194,8 +194,8 @@ const styles = StyleSheet.create({
       path: "app/+not-found.tsx",
       content: `import { Link, Stack } from "expo-router";
 import { StyleSheet } from "react-native";
-import { ThemedText } from "@/src/components/Themed";
-import { ThemedView } from "@/src/components/Themed";
+import { ThemedText } from "@/components/Themed";
+import { ThemedView } from "@/components/Themed";
 
 export default function NotFoundScreen() {
   return (
@@ -228,10 +228,10 @@ const styles = StyleSheet.create({
 
     // ─── src/components/Themed.tsx ───────────────────────────────────────
     {
-      path: "src/components/Themed.tsx",
+      path: "components/Themed.tsx",
       content: `import { Text, type TextProps, View, type ViewProps } from "react-native";
-import { useColorScheme } from "@/src/hooks/useColorScheme";
-import { Colors } from "@/src/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
 
 /** Themed text component that adapts to light/dark mode */
 export function ThemedText({
@@ -270,7 +270,7 @@ export function ThemedView({ style, ...rest }: ViewProps) {
 
     // ─── src/components/HelloWave.tsx ────────────────────────────────────
     {
-      path: "src/components/HelloWave.tsx",
+      path: "components/HelloWave.tsx",
       content: `import { useEffect } from "react";
 import { Animated, Easing } from "react-native";
 import { ThemedText } from "./Themed";
@@ -319,7 +319,7 @@ export function HelloWave() {
 
     // ─── src/hooks/useColorScheme.ts ─────────────────────────────────────
     {
-      path: "src/hooks/useColorScheme.ts",
+      path: "hooks/useColorScheme.ts",
       content: `import { useColorScheme as useRNColorScheme } from "react-native";
 
 /**
@@ -334,7 +334,7 @@ export function useColorScheme(): "light" | "dark" {
 
     // ─── src/constants/Colors.ts ─────────────────────────────────────────
     {
-      path: "src/constants/Colors.ts",
+      path: "constants/Colors.ts",
       content: `/**
  * Color tokens for light and dark themes.
  * Used by Themed components and navigation theming.
@@ -360,7 +360,7 @@ export const Colors = {
 
     // ─── src/types/index.ts ─────────────────────────────────────────────
     {
-      path: "src/types/index.ts",
+      path: "types/index.ts",
       content: `/** Global type definitions */
 
 /** Extend this to declare module-specific types */

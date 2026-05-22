@@ -12,7 +12,7 @@ const authAppleModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/auth/apple.ts",
+      path: "modules/auth/apple.ts",
       content: lines(
         'import * as AppleAuthentication from "expo-apple-authentication";',
         'import { Platform } from "react-native";',

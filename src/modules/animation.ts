@@ -28,13 +28,13 @@ const animationModule: ModuleDef = {
 `,
     },
     {
-      path: "src/modules/animation/index.ts",
+      path: "modules/animation/index.ts",
       content: lines(
         'export { FadeIn, FadeOut, SlideIn, SlideOut, ScaleIn, ScaleOut } from "./transitions";'
       ),
     },
     {
-      path: "src/modules/animation/transitions.ts",
+      path: "modules/animation/transitions.ts",
       content: lines(
         'import Animated, {',
         "  FadeIn as ReanimatedFadeIn,",

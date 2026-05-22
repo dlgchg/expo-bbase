@@ -14,7 +14,7 @@ const formModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/form/index.ts",
+      path: "modules/form/index.ts",
       content: lines(
         'export { useForm } from "react-hook-form";',
         'export { z } from "zod";',
@@ -23,7 +23,7 @@ const formModule: ModuleDef = {
       ),
     },
     {
-      path: "src/modules/form/schemas/auth.ts",
+      path: "modules/form/schemas/auth.ts",
       content: lines(
         'import { z } from "zod";',
         "",

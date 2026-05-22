@@ -12,7 +12,7 @@ const authFacebookModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/auth/facebook.ts",
+      path: "modules/auth/facebook.ts",
       content: lines(
         'import * as Facebook from "expo-facebook";',
         "",

@@ -12,14 +12,14 @@ const paymentModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/payment/index.ts",
+      path: "modules/payment/index.ts",
       content: lines(
         'export { usePayment } from "./usePayment";',
         'export type { ProductInfo, PurchaseResult, PaymentError } from "./types";'
       ),
     },
     {
-      path: "src/modules/payment/types.ts",
+      path: "modules/payment/types.ts",
       content: lines(
         'import type { Product, Purchase } from "react-native-iap";',
         "",
@@ -50,7 +50,7 @@ const paymentModule: ModuleDef = {
       ),
     },
     {
-      path: "src/modules/payment/usePayment.ts",
+      path: "modules/payment/usePayment.ts",
       content: lines(
         'import { useCallback, useEffect, useRef, useState } from "react";',
         'import {',

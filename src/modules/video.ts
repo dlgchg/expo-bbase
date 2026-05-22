@@ -12,7 +12,7 @@ const videoModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/media/VideoPlayer.tsx",
+      path: "modules/media/VideoPlayer.tsx",
       content: lines(
         'import React, { useCallback, useRef, useState } from "react";',
         'import {',

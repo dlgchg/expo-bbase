@@ -45,7 +45,7 @@ npx expo-bbase my-app
 | 图片 | expo-image 封装 |
 | 视频 | expo-av 封装 |
 | Google 登录 | @react-native-google-signin/google-signin |
-| Facebook 登录 | expo-facebook |
+| Facebook 登录 | expo-auth-session 封装（SDK 54 不再支持 expo-facebook） |
 | Apple 登录 | expo-apple-authentication |
 | WebView 容器 | react-native-webview + JS Bridge |
 | 多语言 | i18next + react-i18next |
@@ -147,26 +147,39 @@ my-app/
 │   │   ├── list.tsx              # Card 列表
 │   │   └── mine.tsx              # 个人中心 + 退出
 │   └── +not-found.tsx
-├── src/
-│   ├── api/                      # 网络请求 (可选)
-│   ├── stores/                   # 状态管理 (可选)
-│   ├── storage/                  # 本地存储 (可选)
-│   ├── components/
-│   │   ├── ui/                   # rnr UI 组件
-│   │   │   ├── button.tsx
-│   │   │   ├── text.tsx
-│   │   │   ├── input.tsx
-│   │   │   ├── label.tsx
-│   │   │   ├── card.tsx
-│   │   │   ├── separator.tsx
-│   │   │   └── alert-dialog.tsx
-│   │   └── SignInForm.tsx        # 登录表单
-│   ├── lib/
-│   │   └── utils.ts              # cn() 工具函数
-│   ├── modules/                  # 功能模块 (可选)
-│   ├── hooks/                    # 自定义 Hooks
-│   ├── constants/                # 常量
-│   └── types/                    # 类型定义
+├── api/                          # 网络请求 (可选)
+├── stores/                       # 状态管理 (可选)
+├── storage/                      # 本地存储 (可选)
+├── components/
+│   ├── ui/                       # rnr UI 组件
+│   │   ├── button.tsx
+│   │   ├── text.tsx
+│   │   ├── input.tsx
+│   │   ├── label.tsx
+│   │   ├── card.tsx
+│   │   ├── separator.tsx
+│   │   └── alert-dialog.tsx
+│   ├── SignInForm.tsx            # 登录表单
+│   ├── Themed.tsx                # 主题组件
+│   └── HelloWave.tsx             # 示例组件
+├── lib/
+│   └── utils.ts                  # cn() 工具函数
+├── modules/                      # 功能模块 (可选)
+│   ├── animation/
+│   ├── form/
+│   ├── i18n/
+│   ├── media/
+│   ├── notification/
+│   ├── payment/
+│   ├── permission/
+│   ├── webview/
+│   └── auth/
+│       ├── apple.ts
+│       ├── facebook.ts
+│       └── google.ts
+├── hooks/                        # 自定义 Hooks
+├── constants/                    # 常量
+├── types/                        # 类型定义
 ├── global.css                    # NativeWind CSS 变量 (light/dark)
 ├── assets/                       # 静态资源
 ├── app.json                      # Expo 配置
@@ -188,7 +201,7 @@ my-app/
 {
   "projectName": "my-app",
   "selectedModules": ["network", "state", "ui-reusables"],
-  "cliVersion": "1.3.0",
+  "cliVersion": "1.3.4",
   "uiTemplate": "login-tabs"
 }
 ```
@@ -215,3 +228,21 @@ npm run build
 ## License
 
 MIT
+
+## 更新日志
+
+### v1.3.4
+- 🔧 **目录结构修复**：去除 `src/` 层，模块文件（`modules/`、`api/`、`stores/` 等）与 `app/` 平级
+- 📝 修正 Facebook 登录模块描述（SDK 54 不再支持 `expo-facebook`，改用 `expo-auth-session`）
+
+### v1.3.3
+- 🔧 修复 `react-native-worklets` 版本前缀（`0.5.1` → `~0.5.1`）
+
+### v1.3.2
+- 🔧 修复 babel-preset-expo 自动检测 worklets/reanimated plugin 的问题
+- 未选 animation 模块时显式禁用 `reanimated: false, worklets: false`
+
+### v1.3.0
+- ✨ 新增 UI 模板选择（Login + Tabs / Default）
+- ✨ 集成 reactnative.reusables 官方组件
+- ✨ 新增 `upgrade` 和 `add` 命令

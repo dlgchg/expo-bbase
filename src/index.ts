@@ -18,7 +18,7 @@ import type { ModuleDef, ProjectConfig } from "./types";
 import { execa } from "execa";
 
 /** CLI version — bump this when publishing */
-const CLI_VERSION = "1.3.3";
+const CLI_VERSION = "1.3.4";
 
 /** Config file name stored in project root */
 const CONFIG_FILE = ".expo-bbase.json";

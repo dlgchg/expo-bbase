@@ -12,7 +12,7 @@ const bottomSheetModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/components/AppBottomSheet.tsx",
+      path: "components/AppBottomSheet.tsx",
       content: lines(
         'import React, { useCallback, useRef } from "react";',
         'import { View, Text, StyleSheet } from "react-native";',

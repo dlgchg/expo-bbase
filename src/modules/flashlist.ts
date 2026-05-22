@@ -12,7 +12,7 @@ const flashlistModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/components/AppFlashList.tsx",
+      path: "components/AppFlashList.tsx",
       content: lines(
         'import React, { useCallback } from "react";',
         'import { View, Text, StyleSheet, type ListRenderItemInfo } from "react-native";',

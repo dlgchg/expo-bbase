@@ -12,7 +12,7 @@ const otaModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/ota/useOTAUpdate.ts",
+      path: "modules/ota/useOTAUpdate.ts",
       content: lines(
         'import { useCallback, useEffect, useState } from "react";',
         'import * as Updates from "expo-updates";',

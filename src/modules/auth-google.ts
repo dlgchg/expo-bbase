@@ -12,7 +12,7 @@ const authGoogleModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/auth/google.ts",
+      path: "modules/auth/google.ts",
       content: lines(
         'import {',
         "  GoogleSignin,",

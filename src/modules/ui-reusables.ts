@@ -21,7 +21,7 @@ const uiReusablesModule: ModuleDef = {
   files: [
     // ─── lib/utils.ts ────────────────────────────────────────────────────
     {
-      path: "src/lib/utils.ts",
+      path: "lib/utils.ts",
       content: lines(
         'import { type ClassValue, clsx } from "clsx";',
         'import { twMerge } from "tailwind-merge";',
@@ -35,9 +35,9 @@ const uiReusablesModule: ModuleDef = {
 
     // ─── components/ui/text.tsx ──────────────────────────────────────────
     {
-      path: "src/components/ui/text.tsx",
+      path: "components/ui/text.tsx",
       content: lines(
-        'import { cn } from "@/src/lib/utils";',
+        'import { cn } from "@/lib/utils";',
         'import { Slot } from "@rn-primitives/slot";',
         'import { cva, type VariantProps } from "class-variance-authority";',
         'import * as React from "react";',
@@ -136,10 +136,10 @@ const uiReusablesModule: ModuleDef = {
 
     // ─── components/ui/button.tsx ────────────────────────────────────────
     {
-      path: "src/components/ui/button.tsx",
+      path: "components/ui/button.tsx",
       content: lines(
-        'import { TextClassContext } from "@/src/components/ui/text";',
-        'import { cn } from "@/src/lib/utils";',
+        'import { TextClassContext } from "@/components/ui/text";',
+        'import { cn } from "@/lib/utils";',
         'import { cva, type VariantProps } from "class-variance-authority";',
         'import { Platform, Pressable } from "react-native";',
         "",
@@ -261,9 +261,9 @@ const uiReusablesModule: ModuleDef = {
 
     // ─── components/ui/input.tsx ──────────────────────────────────────────
     {
-      path: "src/components/ui/input.tsx",
+      path: "components/ui/input.tsx",
       content: lines(
-        'import { cn } from "@/src/lib/utils";',
+        'import { cn } from "@/lib/utils";',
         'import { Platform, TextInput } from "react-native";',
         "",
         "function Input({",
@@ -301,9 +301,9 @@ const uiReusablesModule: ModuleDef = {
 
     // ─── components/ui/label.tsx ─────────────────────────────────────────
     {
-      path: "src/components/ui/label.tsx",
+      path: "components/ui/label.tsx",
       content: lines(
-        'import { cn } from "@/src/lib/utils";',
+        'import { cn } from "@/lib/utils";',
         'import * as LabelPrimitive from "@rn-primitives/label";',
         'import { Platform } from "react-native";',
         "",
@@ -350,10 +350,10 @@ const uiReusablesModule: ModuleDef = {
 
     // ─── components/ui/card.tsx ──────────────────────────────────────────
     {
-      path: "src/components/ui/card.tsx",
+      path: "components/ui/card.tsx",
       content: lines(
-        'import { Text, TextClassContext } from "@/src/components/ui/text";',
-        'import { cn } from "@/src/lib/utils";',
+        'import { Text, TextClassContext } from "@/components/ui/text";',
+        'import { cn } from "@/lib/utils";',
         'import { View } from "react-native";',
         "",
         "function Card({",
@@ -432,9 +432,9 @@ const uiReusablesModule: ModuleDef = {
 
     // ─── components/ui/separator.tsx ──────────────────────────────────────
     {
-      path: "src/components/ui/separator.tsx",
+      path: "components/ui/separator.tsx",
       content: lines(
-        'import { cn } from "@/src/lib/utils";',
+        'import { cn } from "@/lib/utils";',
         'import * as SeparatorPrimitive from "@rn-primitives/separator";',
         "",
         "function Separator({",
@@ -464,11 +464,11 @@ const uiReusablesModule: ModuleDef = {
 
     // ─── components/ui/alert-dialog.tsx ──────────────────────────────────
     {
-      path: "src/components/ui/alert-dialog.tsx",
+      path: "components/ui/alert-dialog.tsx",
       content: lines(
-        'import { buttonTextVariants, buttonVariants } from "@/src/components/ui/button";',
-        'import { TextClassContext } from "@/src/components/ui/text";',
-        'import { cn } from "@/src/lib/utils";',
+        'import { buttonTextVariants, buttonVariants } from "@/components/ui/button";',
+        'import { TextClassContext } from "@/components/ui/text";',
+        'import { cn } from "@/lib/utils";',
         'import * as AlertDialogPrimitive from "@rn-primitives/alert-dialog";',
         'import * as React from "react";',
         'import { Platform, View, type ViewProps } from "react-native";',

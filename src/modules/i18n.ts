@@ -14,7 +14,7 @@ const i18nModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/i18n/index.ts",
+      path: "modules/i18n/index.ts",
       content: lines(
         'import i18n from "i18next";',
         'import { initReactI18next } from "react-i18next";',
@@ -49,7 +49,7 @@ const i18nModule: ModuleDef = {
       ),
     },
     {
-      path: "src/modules/i18n/locales/en.json",
+      path: "modules/i18n/locales/en.json",
       content: [
         "{",
         '  "common": {',
@@ -93,7 +93,7 @@ const i18nModule: ModuleDef = {
       ].join("\n"),
     },
     {
-      path: "src/modules/i18n/locales/zh.json",
+      path: "modules/i18n/locales/zh.json",
       content: [
         "{",
         '  "common": {',

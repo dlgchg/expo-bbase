@@ -14,7 +14,7 @@ const permissionModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/permission/index.ts",
+      path: "modules/permission/index.ts",
       content: lines(
         'import * as ImagePicker from "expo-image-picker";',
         'import * as Camera from "expo-camera";',

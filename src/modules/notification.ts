@@ -12,14 +12,14 @@ const notificationModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/modules/notification/index.ts",
+      path: "modules/notification/index.ts",
       content: lines(
         'export { InAppNotification, useInAppNotification } from "./InAppNotification";',
         'export { setupNotificationHandlers } from "./InAppNotification";'
       ),
     },
     {
-      path: "src/modules/notification/InAppNotification.tsx",
+      path: "modules/notification/InAppNotification.tsx",
       content: lines(
         'import React, {',
         "  createContext,",

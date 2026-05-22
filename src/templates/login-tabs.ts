@@ -19,7 +19,7 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
         'import { useEffect } from "react";',
         'import { useColorScheme } from "react-native";',
         "",
-        'import { Colors } from "@/src/constants/Colors";',
+        'import { Colors } from "@/constants/Colors";',
         "",
         "SplashScreen.preventAutoHideAsync();",
         "",
@@ -57,7 +57,7 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
     {
       path: "app/login.tsx",
       content: lines(
-        'import { SignInForm } from "@/src/components/SignInForm";',
+        'import { SignInForm } from "@/components/SignInForm";',
         'import { View } from "react-native";',
         "",
         "export default function LoginScreen() {",
@@ -78,8 +78,8 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
         'import { Tabs } from "expo-router";',
         'import { Platform } from "react-native";',
         "",
-        'import { Colors } from "@/src/constants/Colors";',
-        'import { useColorScheme } from "@/src/hooks/useColorScheme";',
+        'import { Colors } from "@/constants/Colors";',
+        'import { useColorScheme } from "@/hooks/useColorScheme";',
         "",
         "export default function TabLayout() {",
         "  const colorScheme = useColorScheme();",
@@ -132,7 +132,7 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
     {
       path: "app/(tabs)/home.tsx",
       content: lines(
-        'import { Button } from "@/src/components/ui/button";',
+        'import { Button } from "@/components/ui/button";',
         'import {',
         '  AlertDialog,',
         '  AlertDialogAction,',
@@ -143,8 +143,8 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
         '  AlertDialogHeader,',
         '  AlertDialogTitle,',
         '  AlertDialogTrigger,',
-        '} from "@/src/components/ui/alert-dialog";',
-        'import { Text } from "@/src/components/ui/text";',
+        '} from "@/components/ui/alert-dialog";',
+        'import { Text } from "@/components/ui/text";',
         'import { View } from "react-native";',
         "",
         "export default function HomeScreen() {",
@@ -216,8 +216,8 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
     {
       path: "app/(tabs)/list.tsx",
       content: lines(
-        'import { Text } from "@/src/components/ui/text";',
-        'import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";',
+        'import { Text } from "@/components/ui/text";',
+        'import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";',
         'import { View, ScrollView } from "react-native";',
         "",
         "const ITEMS = Array.from({ length: 20 }, (_, i) => ({",
@@ -252,9 +252,9 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
     {
       path: "app/(tabs)/mine.tsx",
       content: lines(
-        'import { Button } from "@/src/components/ui/button";',
-        'import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";',
-        'import { Text } from "@/src/components/ui/text";',
+        'import { Button } from "@/components/ui/button";',
+        'import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";',
+        'import { Text } from "@/components/ui/text";',
         'import { View } from "react-native";',
         'import { router } from "expo-router";',
         "",
@@ -293,20 +293,20 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
 
     // ─── src/components/SignInForm.tsx ───────────────────────────────────
     {
-      path: "src/components/SignInForm.tsx",
+      path: "components/SignInForm.tsx",
       content: lines(
-        'import { Button } from "@/src/components/ui/button";',
+        'import { Button } from "@/components/ui/button";',
         'import {',
         '  Card,',
         '  CardContent,',
         '  CardDescription,',
         '  CardHeader,',
         '  CardTitle,',
-        '} from "@/src/components/ui/card";',
-        'import { Input } from "@/src/components/ui/input";',
-        'import { Label } from "@/src/components/ui/label";',
-        'import { Separator } from "@/src/components/ui/separator";',
-        'import { Text } from "@/src/components/ui/text";',
+        '} from "@/components/ui/card";',
+        'import { Input } from "@/components/ui/input";',
+        'import { Label } from "@/components/ui/label";',
+        'import { Separator } from "@/components/ui/separator";',
+        'import { Text } from "@/components/ui/text";',
         'import * as React from "react";',
         'import { Pressable, type TextInput, View } from "react-native";',
         'import { router } from "expo-router";',

@@ -12,7 +12,7 @@ const storageModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
-      path: "src/storage/index.ts",
+      path: "storage/index.ts",
       content: lines(
         'import { MMKV } from "react-native-mmkv";',
         "",

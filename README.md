@@ -129,8 +129,10 @@ npx expo-bbase add . -m bottom-sheet,flashlist
 - **Expo SDK 54** + New Architecture
 - **Expo Router v5** — 文件路由
 - **NativeWind v4** — Tailwind CSS for React Native
-- **TypeScript** — 类型安全
+- **TypeScript** — 类型安全 + `@/*` 路径别名
 - **react-native-svg** — SVG 支持
+- **Reanimated 4 + Gesture Handler + Worklets** — 动画/手势（默认包含，不再需要单独选）
+- **assets/** — 默认图标 + Nunito-Bold 字体
 
 所有依赖版本与 Expo SDK 54 的 `bundledNativeModules.json` 对齐。
 
@@ -182,6 +184,12 @@ my-app/
 ├── types/                        # 类型定义
 ├── global.css                    # NativeWind CSS 变量 (light/dark)
 ├── assets/                       # 静态资源
+│   ├── icon.png                  # App 图标
+│   ├── adaptive-icon.png         # Android 自适应图标
+│   ├── splash-icon.png           # 启动画面
+│   ├── favicon.png               # Web favicon
+│   └── fonts/
+│       └── Nunito-Bold.ttf       # 默认字体
 ├── app.json                      # Expo 配置
 ├── babel.config.js               # Babel 配置 (NativeWind + Reanimated)
 ├── metro.config.js               # Metro 配置 (withNativeWind)
@@ -230,6 +238,12 @@ npm run build
 MIT
 
 ## 更新日志
+
+### v1.4.0
+- 🔧 **动画依赖默认包含**：`react-native-reanimated`、`react-native-worklets`、`react-native-gesture-handler` 加入基础依赖，不再需要用户单独选择，彻底解决 `Cannot find module 'react-native-worklets/plugin'` 报错
+- 🖼️ **assets 目录内置**：自动生成 `assets/` 目录（icon.png、adaptive-icon.png、splash-icon.png、favicon.png、fonts/Nunito-Bold.ttf），app.json 恢复图标引用
+- ⚙️ **tsconfig.json 升级**：继承 `expo/tsconfig.base`，`@/*` 路径别名开箱即用
+- 🔧 **babel.config.js 简化**：移除 `reanimated: false, worklets: false` 禁用标志（因包已默认安装）
 
 ### v1.3.5
 - 🔧 **修复 Facebook 登录模块**：移除已废弃的 `expo-facebook`（SDK 54 不再包含），改用 `expo-auth-session` + `expo-web-browser` 实现 Facebook OAuth 登录

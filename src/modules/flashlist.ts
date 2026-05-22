@@ -7,7 +7,7 @@ const flashlistModule: ModuleDef = {
   description: "@shopify/flash-list",
   defaultChecked: false,
   dependencies: {
-    "@shopify/flash-list": "^1.7.0",
+    "@shopify/flash-list": "2.0.2",
   },
   devDependencies: {},
   files: [

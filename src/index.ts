@@ -1,24 +1,24 @@
 import chalk from "chalk";
-import prompts from "prompts";
+import { Command } from "commander";
+import { execa } from "execa";
+import fse from "fs-extra";
 import ora from "ora";
 import path from "path";
-import fse from "fs-extra";
-import { Command } from "commander";
+import prompts from "prompts";
 import {
+  registerAddCommand,
   registerCreateCommand,
   registerUpgradeCommand,
-  registerAddCommand,
 } from "./commands/create";
-import { modules, getModulesByIds, getModuleById } from "./modules";
+import { getModuleById, getModulesByIds, modules } from "./modules";
 import { generateBaseTemplates } from "./templates/base";
 import { generateLoginTabsTemplates } from "./templates/login-tabs";
-import { writeFile, writeJson, replaceTemplateVars } from "./utils/file";
-import { generateBasePackageJson, mergeDependencies } from "./utils/package";
 import type { ModuleDef, ProjectConfig } from "./types";
-import { execa } from "execa";
+import { replaceTemplateVars, writeFile, writeJson } from "./utils/file";
+import { generateBasePackageJson, mergeDependencies } from "./utils/package";
 
 /** CLI version — bump this when publishing */
-const CLI_VERSION = "1.7.2";
+const CLI_VERSION = "1.7.3";
 
 /** Config file name stored in project root */
 const CONFIG_FILE = ".expo-bbase.json";
@@ -294,8 +294,8 @@ export async function upgradeProject(targetDir: string): Promise<void> {
     console.error(
       chalk.red(
         `  ✖ No ${CONFIG_FILE} found in ${absDir}\n` +
-          `  This directory doesn't appear to be an expo-bbase project.\n` +
-          `  If it is, run "expo-bbase add" to register modules.`
+        `  This directory doesn't appear to be an expo-bbase project.\n` +
+        `  If it is, run "expo-bbase add" to register modules.`
       )
     );
     process.exit(1);

@@ -7,7 +7,7 @@ const notificationModule: ModuleDef = {
   description: "expo-notifications + 自定义组件",
   defaultChecked: false,
   dependencies: {
-    "expo-notifications": "~0.30.0",
+    "expo-notifications": "~0.32.17",
   },
   devDependencies: {},
   files: [

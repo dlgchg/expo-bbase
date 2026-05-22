@@ -7,7 +7,7 @@ const otaModule: ModuleDef = {
   description: "expo-updates",
   defaultChecked: false,
   dependencies: {
-    "expo-updates": "~7.0.0",
+    "expo-updates": "~29.0.17",
   },
   devDependencies: {},
   files: [

@@ -7,7 +7,7 @@ const videoModule: ModuleDef = {
   description: "expo-av 封装",
   defaultChecked: false,
   dependencies: {
-    "expo-av": "~15.0.0",
+    "expo-av": "~16.0.8",
   },
   devDependencies: {},
   files: [

@@ -7,7 +7,7 @@ const imageModule: ModuleDef = {
   description: "expo-image 封装",
   defaultChecked: false,
   dependencies: {
-    "expo-image": "~2.0.0",
+    "expo-image": "~3.0.11",
   },
   devDependencies: {},
   files: [

@@ -9,7 +9,7 @@ const i18nModule: ModuleDef = {
   dependencies: {
     i18next: "^24.2.0",
     "react-i18next": "^15.2.0",
-    "expo-localization": "~16.0.0",
+    "expo-localization": "~17.0.8",
   },
   devDependencies: {},
   files: [

@@ -7,9 +7,9 @@ const permissionModule: ModuleDef = {
   description: "权限请求/检查封装",
   defaultChecked: false,
   dependencies: {
-    "expo-image-picker": "~16.0.0",
-    "expo-camera": "~16.0.0",
-    "expo-location": "~18.0.0",
+    "expo-image-picker": "~17.0.11",
+    "expo-camera": "~17.0.10",
+    "expo-location": "~19.0.8",
   },
   devDependencies: {},
   files: [

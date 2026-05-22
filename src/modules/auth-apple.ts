@@ -7,7 +7,7 @@ const authAppleModule: ModuleDef = {
   description: "expo-apple-authentication",
   defaultChecked: false,
   dependencies: {
-    "expo-apple-authentication": "~8.0.0",
+    "expo-apple-authentication": "~8.0.8",
   },
   devDependencies: {},
   files: [

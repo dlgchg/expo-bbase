@@ -7,7 +7,7 @@ const webviewModule: ModuleDef = {
   description: "react-native-webview + JS Bridge",
   defaultChecked: false,
   dependencies: {
-    "react-native-webview": "^13.12.0",
+    "react-native-webview": "~13.15.0",
   },
   devDependencies: {},
   files: [

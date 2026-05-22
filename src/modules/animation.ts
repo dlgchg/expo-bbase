@@ -7,8 +7,8 @@ const animationModule: ModuleDef = {
   description: "Reanimated 3 + Gesture Handler",
   defaultChecked: false,
   dependencies: {
-    "react-native-reanimated": "~3.17.0",
-    "react-native-gesture-handler": "~2.22.0",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-gesture-handler": "~2.28.0",
   },
   devDependencies: {},
   files: [

@@ -21,4 +21,5 @@ export interface ProjectConfig {
   projectName: string;
   selectedModules: string[];
   cliVersion: string;
+  uiTemplate?: "default" | "login-tabs";
 }

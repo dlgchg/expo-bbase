@@ -58,6 +58,7 @@ export function generateBasePackageJson(
       "react-native-screens": "~4.16.0",
       nativewind: "^4.1.0",
       tailwindcss: "^3.4.0",
+      "react-native-svg": "^15.8.0",
     },
     devDependencies: {
       "@types/react": "~19.1.0",

@@ -11,13 +11,14 @@ import {
 } from "./commands/create";
 import { modules, getModulesByIds, getModuleById } from "./modules";
 import { generateBaseTemplates } from "./templates/base";
+import { generateLoginTabsTemplates } from "./templates/login-tabs";
 import { writeFile, writeJson, replaceTemplateVars } from "./utils/file";
 import { generateBasePackageJson, mergeDependencies } from "./utils/package";
 import type { ModuleDef, ProjectConfig } from "./types";
 import { execa } from "execa";
 
 /** CLI version — bump this when publishing */
-const CLI_VERSION = "1.2.0";
+const CLI_VERSION = "1.3.0";
 
 /** Config file name stored in project root */
 const CONFIG_FILE = ".expo-bbase.json";
@@ -86,11 +87,39 @@ export async function createProject(projectName: string): Promise<void> {
   );
   console.log();
 
-  // ─── Step 1: Interactive module selection ──────────────────────────
+  // ─── Step 1: UI template selection ──────────────────────────────────
+  const { uiTemplate } = await prompts({
+    type: "select",
+    name: "uiTemplate",
+    message: "Choose a UI template",
+    choices: [
+      {
+        title: `${chalk.bold("Login + Tabs")} — Login page, Home/List/Mine tabs with rnr components`,
+        value: "login-tabs",
+        description: "Pre-built login form, 3-tab layout with Button & AlertDialog demos",
+      },
+      {
+        title: `${chalk.bold("Default")} — Blank tabs (Home + Explore)`,
+        value: "default",
+        description: "Minimal starter with basic tab navigation",
+      },
+    ],
+    initial: 0,
+  });
+
+  if (uiTemplate === undefined) {
+    console.log(chalk.yellow("\nCancelled."));
+    process.exit(0);
+  }
+
+  const isLoginTabs = uiTemplate === "login-tabs";
+
+  // ─── Step 2: Interactive module selection ──────────────────────────
   const choices = modules.map((m) => ({
     title: `${chalk.bold(m.name)} — ${chalk.gray(m.description)}`,
     value: m.id,
-    selected: m.defaultChecked,
+    // Auto-select ui-reusables when login-tabs template is chosen
+    selected: isLoginTabs && m.id === "ui-reusables" ? true : m.defaultChecked,
   }));
 
   const { selectedModules } = await prompts({
@@ -107,7 +136,13 @@ export async function createProject(projectName: string): Promise<void> {
     process.exit(0);
   }
 
-  const selectedModuleDefs = getModulesByIds(selectedModules as string[]);
+  // Ensure ui-reusables is included when login-tabs is selected
+  let finalModuleIds = selectedModules as string[];
+  if (isLoginTabs && !finalModuleIds.includes("ui-reusables")) {
+    finalModuleIds = ["ui-reusables", ...finalModuleIds];
+  }
+
+  const selectedModuleDefs = getModulesByIds(finalModuleIds);
   const targetDir = path.resolve(process.cwd(), projectName);
 
   console.log();
@@ -115,12 +150,17 @@ export async function createProject(projectName: string): Promise<void> {
   console.log(chalk.white(`  📂 Path:    ${chalk.gray(targetDir)}`));
   console.log(
     chalk.white(
+      `  🎨 Template: ${chalk.green(isLoginTabs ? "Login + Tabs" : "Default")}`
+    )
+  );
+  console.log(
+    chalk.white(
       `  🧩 Modules: ${chalk.green(selectedModuleDefs.map((m) => m.name).join(", ") || "none")}`
     )
   );
   console.log();
 
-  // ─── Step 2: Create project directory and write base files ─────────
+  // ─── Step 3: Create project directory and write base files ─────────
   const spinner = ora("Creating project...").start();
 
   try {
@@ -134,7 +174,7 @@ export async function createProject(projectName: string): Promise<void> {
 
     spinner.text = "Writing module files...";
 
-    // ─── Step 3: Write module template files ──────────────────────────
+    // ─── Step 4: Write module template files ──────────────────────────
     for (const mod of selectedModuleDefs) {
       for (const file of mod.files) {
         const filePath = path.join(targetDir, file.path);
@@ -143,7 +183,18 @@ export async function createProject(projectName: string): Promise<void> {
       }
     }
 
-    // ─── Step 4: Generate and merge package.json ──────────────────────
+    // ─── Step 4.5: Write UI template files (override base files) ──────
+    if (isLoginTabs) {
+      spinner.text = "Writing UI template files...";
+      const loginTabsTemplates = generateLoginTabsTemplates(projectName);
+      for (const file of loginTabsTemplates) {
+        const filePath = path.join(targetDir, file.path);
+        const content = replaceTemplateVars(file.content, { projectName });
+        await writeFile(filePath, content);
+      }
+    }
+
+    // ─── Step 5: Generate and merge package.json ──────────────────────
     spinner.text = "Generating package.json...";
     const pkgJson = generateBasePackageJson(projectName);
 
@@ -163,26 +214,27 @@ export async function createProject(projectName: string): Promise<void> {
     const pkgPath = path.join(targetDir, "package.json");
     await writeJson(pkgPath, pkgJson);
 
-    // ─── Step 5: Update app.json with plugin configurations ──────────
+    // ─── Step 6: Update app.json with plugin configurations ──────────
     spinner.text = "Configuring app.json...";
     await updateAppJson(targetDir, selectedModuleDefs, projectName);
 
-    // ─── Step 6: Update babel.config.js with additional plugins ───────
+    // ─── Step 7: Update babel.config.js with additional plugins ───────
     spinner.text = "Configuring Babel...";
     await updateBabelConfig(targetDir, selectedModuleDefs);
 
-    // ─── Step 7: Update app/_layout.tsx with module providers/imports ─
+    // ─── Step 8: Update app/_layout.tsx with module providers/imports ─
     spinner.text = "Configuring layout...";
     await updateLayoutFile(targetDir, selectedModuleDefs);
 
-    // ─── Step 8: Write .expo-bbase.json config ───────────────────────
+    // ─── Step 9: Write .expo-bbase.json config ───────────────────────
     await writeProjectConfig(targetDir, {
       projectName,
-      selectedModules: selectedModules as string[],
+      selectedModules: finalModuleIds,
       cliVersion: CLI_VERSION,
+      uiTemplate: isLoginTabs ? "login-tabs" : "default",
     });
 
-    // ─── Step 9: Run yarn install ─────────────────────────────────────
+    // ─── Step 10: Run yarn install ────────────────────────────────────
     spinner.text = "Installing dependencies (yarn install)...";
     try {
       await execa("yarn", ["install"], {
@@ -206,6 +258,9 @@ export async function createProject(projectName: string): Promise<void> {
     console.log(chalk.bold("  🎉 Next steps:"));
     console.log(chalk.white(`     cd ${projectName}`));
     console.log(chalk.white("     npx expo start"));
+    if (isLoginTabs) {
+      console.log(chalk.gray("     → App starts at login page, sign in to see tabs"));
+    }
     console.log();
 
     if (selectedModuleDefs.length > 0) {

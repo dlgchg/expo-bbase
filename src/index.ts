@@ -18,7 +18,7 @@ import type { ModuleDef, ProjectConfig } from "./types";
 import { execa } from "execa";
 
 /** CLI version — bump this when publishing */
-const CLI_VERSION = "1.6.1";
+const CLI_VERSION = "1.7.0";
 
 /** Config file name stored in project root */
 const CONFIG_FILE = ".expo-bbase.json";
@@ -94,12 +94,12 @@ export async function createProject(projectName: string): Promise<void> {
     message: "Choose a UI template",
     choices: [
       {
-        title: `${chalk.bold("Login + Tabs")} — Login page, Home/List/Mine tabs with rnr components`,
+        title: `${chalk.bold("Login + Tabs")} — Login page, Index/Explore/Mine tabs with rnr components`,
         value: "login-tabs",
         description: "Pre-built login form, 3-tab layout with Button & AlertDialog demos",
       },
       {
-        title: `${chalk.bold("Default")} — Blank tabs (Home + Explore)`,
+        title: `${chalk.bold("Default")} — Blank tabs (Index + Explore)`,
         value: "default",
         description: "Minimal starter with basic tab navigation",
       },

@@ -86,6 +86,7 @@ export function generateBasePackageJson(
       // ─── Styling ──────────────────────────────────────────────────
       nativewind: "^4.1.0",
       tailwindcss: "^3.4.0",
+      "tailwindcss-animate": "^1.0.7",
       "react-native-svg": "15.12.1",
 
       // ─── Network ─────────────────────────────────────────────────

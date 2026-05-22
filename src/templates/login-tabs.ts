@@ -3,8 +3,8 @@ import { lines } from "../utils/lines";
 
 /**
  * Generate UI template files for the "login-tabs" preset.
- * Includes: Sign-in page, 3-tab layout (Home/List/Mine),
- * Home page with Button & AlertDialog demos, Mine page with sign-out.
+ * Uses reactnativereusables official patterns (NAV_THEME, PortalHost, cn()).
+ * Tabs: Index + Explore + Mine
  */
 export function generateLoginTabsTemplates(projectName: string): TemplateFile[] {
   return [
@@ -12,14 +12,15 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
     {
       path: "app/_layout.tsx",
       content: lines(
+        'import "../global.css";',
         'import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";',
         'import { useFonts } from "expo-font";',
         'import { Stack } from "expo-router";',
         'import * as SplashScreen from "expo-splash-screen";',
         'import { useEffect } from "react";',
         'import { useColorScheme } from "react-native";',
-        "",
-        'import { Colors } from "@/constants/Colors";',
+        'import { PortalHost } from "@rn-primitives/portal";',
+        'import { NAV_THEME } from "@/lib/theme";',
         "",
         "SplashScreen.preventAutoHideAsync();",
         "",
@@ -40,12 +41,14 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
         "  }",
         "",
         "  return (",
-        "    <ThemeProvider value={colorScheme === \"dark\" ? DarkTheme : DefaultTheme}>",
+        "    <ThemeProvider value={colorScheme === \"dark\" ? NAV_THEME.dark : NAV_THEME.light}>",
+        "      <StatusBar style={colorScheme === \"dark\" ? \"light\" : \"dark\"} />",
         "      <Stack>",
         '        <Stack.Screen name="login" options={{ headerShown: false }} />',
         '        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />',
         '        <Stack.Screen name="+not-found" />',
         "      </Stack>",
+        "      <PortalHost />",
         "    </ThemeProvider>",
         "  );",
         "}",
@@ -78,19 +81,10 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
         'import { Tabs } from "expo-router";',
         'import { Platform } from "react-native";',
         "",
-        'import { Colors } from "@/constants/Colors";',
-        'import { useColorScheme } from "@/hooks/useColorScheme";',
-        "",
         "export default function TabLayout() {",
-        "  const colorScheme = useColorScheme();",
-        "",
         "  return (",
         "    <Tabs",
         "      screenOptions={{",
-        "        tabBarActiveTintColor: Colors[colorScheme ?? \"light\"].tint,",
-        "        headerStyle: {",
-        "          backgroundColor: Colors[colorScheme ?? \"light\"].background,",
-        "        },",
         "        headerShadowVisible: false,",
         "        tabBarStyle: Platform.select({",
         "          ios: {",
@@ -101,16 +95,16 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
         "      }}",
         "    >",
         "      <Tabs.Screen",
-        '        name="home"',
+        '        name="index"',
         "        options={{",
         '          title: "Home",',
         "          tabBarIcon: () => null,",
         "        }}",
         "      />",
         "      <Tabs.Screen",
-        '        name="list"',
+        '        name="explore"',
         "        options={{",
-        '          title: "List",',
+        '          title: "Explore",',
         "          tabBarIcon: () => null,",
         "        }}",
         "      />",
@@ -128,9 +122,9 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
       ),
     },
 
-    // ─── app/(tabs)/home.tsx ────────────────────────────────────────────
+    // ─── app/(tabs)/index.tsx ──────────────────────────────────────────
     {
-      path: "app/(tabs)/home.tsx",
+      path: "app/(tabs)/index.tsx",
       content: lines(
         'import { Button } from "@/components/ui/button";',
         'import {',
@@ -150,8 +144,8 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
         "export default function HomeScreen() {",
         "  return (",
         '    <View className="flex-1 gap-6 p-6">',
-        "      <Text variant=\"h3\">UI Components</Text>",
-        "      <Text variant=\"muted\">React Native Reusables components showcase</Text>",
+        '      <Text variant="h3">UI Components</Text>',
+        '      <Text variant="muted">React Native Reusables components showcase</Text>',
         "",
         "      {/* Button variants */}",
         '      <View className="gap-3">',
@@ -212,9 +206,9 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
       ),
     },
 
-    // ─── app/(tabs)/list.tsx ────────────────────────────────────────────
+    // ─── app/(tabs)/explore.tsx ────────────────────────────────────────
     {
-      path: "app/(tabs)/list.tsx",
+      path: "app/(tabs)/explore.tsx",
       content: lines(
         'import { Text } from "@/components/ui/text";',
         'import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";',
@@ -226,10 +220,10 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
         "  description: `Description for item ${i + 1}`,",
         "}));",
         "",
-        "export default function ListScreen() {",
+        "export default function ExploreScreen() {",
         "  return (",
         '    <ScrollView className="flex-1 p-4">',
-        '      <Text variant="h3" className="mb-4">List</Text>',
+        '      <Text variant="h3" className="mb-4">Explore</Text>',
         '      <View className="gap-3">',
         "        {ITEMS.map((item) => (",
         '          <Card key={item.id}>',
@@ -291,7 +285,7 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
       ),
     },
 
-    // ─── src/components/SignInForm.tsx ───────────────────────────────────
+    // ─── components/SignInForm.tsx ────────────────────────────────────
     {
       path: "components/SignInForm.tsx",
       content: lines(
@@ -320,7 +314,7 @@ export function generateLoginTabsTemplates(projectName: string): TemplateFile[] 
         "",
         "  function onSubmit() {",
         "    // TODO: Submit form and navigate to protected screen if successful",
-        '    router.replace("/(tabs)/home");',
+        '    router.replace("/(tabs)");',
         "  }",
         "",
         "  return (",

@@ -2,7 +2,8 @@ import type { TemplateFile } from "../types";
 
 /**
  * Generate base template files that are included in every project.
- * These form the core Expo Router + NativeWind project structure.
+ * Follows reactnativereusables official installation guide.
+ * https://reactnativereusables.com/docs/installation/manual
  */
 export function generateBaseTemplates(projectName: string): TemplateFile[] {
   return [
@@ -16,8 +17,8 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
-
-import { Colors } from "@/constants/Colors";
+import { PortalHost } from "@rn-primitives/portal";
+import { NAV_THEME } from "@/lib/theme";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -38,11 +39,13 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? NAV_THEME.dark : NAV_THEME.light}>
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
+      <PortalHost />
     </ThemeProvider>
   );
 }
@@ -55,19 +58,10 @@ export default function RootLayout() {
       content: `import { Tabs } from "expo-router";
 import { Platform } from "react-native";
 
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
-
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        headerStyle: {
-          backgroundColor: Colors[colorScheme ?? "light"].background,
-        },
         headerShadowVisible: false,
         tabBarStyle: Platform.select({
           ios: {
@@ -100,92 +94,32 @@ export default function TabLayout() {
     // ─── app/(tabs)/index.tsx ───────────────────────────────────────────
     {
       path: "app/(tabs)/index.tsx",
-      content: `import { Image, StyleSheet, Platform } from "react-native";
-import { HelloWave } from "@/components/HelloWave";
-import { ThemedText } from "@/components/Themed";
-import { ThemedView } from "@/components/Themed";
-import { Link } from "expo-router";
+      content: `import { Text, View } from "react-native";
 
 export default function HomeScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">${projectName}</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: "cmd + d", android: "cmd + m" })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter.
-        </ThemedText>
-        <Link href="/explore">
-          <ThemedText type="link">Go to Explore →</ThemedText>
-        </Link>
-      </ThemedView>
-    </ThemedView>
+    <View className="flex-1 items-center justify-center p-6">
+      <Text className="text-foreground text-2xl font-bold">${projectName}</Text>
+      <Text className="text-muted-foreground mt-2">Welcome to your new app</Text>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-});
 `,
     },
 
     // ─── app/(tabs)/explore.tsx ─────────────────────────────────────────
     {
       path: "app/(tabs)/explore.tsx",
-      content: `import { StyleSheet, Image, Platform } from "react-native";
-import { ThemedText } from "@/components/Themed";
-import { ThemedView } from "@/components/Themed";
+      content: `import { Text, View } from "react-native";
 
 export default function ExploreScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Explore</ThemedText>
-      <ThemedText style={styles.subtitle}>
-        This screen shows what you can do with this scaffolded project.
-      </ThemedText>
-    </ThemedView>
+    <View className="flex-1 items-center justify-center p-6">
+      <Text className="text-foreground text-2xl font-bold">Explore</Text>
+      <Text className="text-muted-foreground mt-2">Discover new features</Text>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 8,
-  },
-});
 `,
     },
 
@@ -193,172 +127,124 @@ const styles = StyleSheet.create({
     {
       path: "app/+not-found.tsx",
       content: `import { Link, Stack } from "expo-router";
-import { StyleSheet } from "react-native";
-import { ThemedText } from "@/components/Themed";
-import { ThemedView } from "@/components/Themed";
+import { Text, View } from "react-native";
 
 export default function NotFoundScreen() {
   return (
     <>
       <Stack.Screen options={{ title: "Oops!" }} />
-      <ThemedView style={styles.container}>
-        <ThemedText type="title">This screen doesn't exist.</ThemedText>
-        <Link href="/" style={styles.link}>
-          <ThemedText type="link">Go to home screen!</ThemedText>
+      <View className="flex-1 items-center justify-center p-5">
+        <Text className="text-foreground text-2xl font-bold">This screen doesn't exist.</Text>
+        <Link href="/" className="mt-4 py-4">
+          <Text className="text-primary underline">Go to home screen!</Text>
         </Link>
-      </ThemedView>
+      </View>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-});
 `,
     },
 
-    // ─── src/components/Themed.tsx ───────────────────────────────────────
+    // ─── lib/utils.ts (rnr official cn helper) ───────────────────────────
     {
-      path: "components/Themed.tsx",
-      content: `import { Text, type TextProps, View, type ViewProps } from "react-native";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Colors } from "@/constants/Colors";
+      path: "lib/utils.ts",
+      content: `import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-/** Themed text component that adapts to light/dark mode */
-export function ThemedText({
-  style,
-  type = "default",
-  ...rest
-}: TextProps & { type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link" }) {
-  const colorScheme = useColorScheme();
-  const color = Colors[colorScheme ?? "light"].text;
-
-  return (
-    <Text
-      style={[
-        { color },
-        type === "default" ? { fontSize: 16, lineHeight: 24 } : undefined,
-        type === "title" ? { fontSize: 28, fontWeight: "bold", lineHeight: 32 } : undefined,
-        type === "defaultSemiBold" ? { fontSize: 16, lineHeight: 24, fontWeight: "600" } : undefined,
-        type === "subtitle" ? { fontSize: 20, fontWeight: "bold" } : undefined,
-        type === "link" ? { fontSize: 16, lineHeight: 24, color: Colors[colorScheme ?? "light"].tint } : undefined,
-        style,
-      ]}
-      {...rest}
-    />
-  );
-}
-
-/** Themed view component that adapts to light/dark mode */
-export function ThemedView({ style, ...rest }: ViewProps) {
-  const colorScheme = useColorScheme();
-  const backgroundColor = Colors[colorScheme ?? "light"].background;
-
-  return <View style={[{ backgroundColor }, style]} {...rest} />;
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 `,
     },
 
-    // ─── src/components/HelloWave.tsx ────────────────────────────────────
+    // ─── lib/theme.ts (rnr official theme) ───────────────────────────────
     {
-      path: "components/HelloWave.tsx",
-      content: `import { useEffect } from "react";
-import { Animated, Easing } from "react-native";
-import { ThemedText } from "./Themed";
+      path: "lib/theme.ts",
+      content: `import { DarkTheme, DefaultTheme, type Theme } from '@react-navigation/native';
 
-export function HelloWave() {
-  const rotationAnim = new Animated.Value(0);
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(rotationAnim, {
-          toValue: 1,
-          duration: 150,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(rotationAnim, {
-          toValue: 0,
-          duration: 150,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, [rotationAnim]);
-
-  return (
-    <Animated.View
-      style={{
-        transform: [
-          {
-            rotate: rotationAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: ["0deg", "14deg"],
-            }),
-          },
-        ],
-      }}
-    >
-      <ThemedText style={{ fontSize: 28 }}>👋</ThemedText>
-    </Animated.View>
-  );
-}
-`,
-    },
-
-    // ─── src/hooks/useColorScheme.ts ─────────────────────────────────────
-    {
-      path: "hooks/useColorScheme.ts",
-      content: `import { useColorScheme as useRNColorScheme } from "react-native";
-
-/**
- * Returns the current color scheme (light or dark).
- * Defaults to "light" if the system preference is not available.
- */
-export function useColorScheme(): "light" | "dark" {
-  return useRNColorScheme() ?? "light";
-}
-`,
-    },
-
-    // ─── src/constants/Colors.ts ─────────────────────────────────────────
-    {
-      path: "constants/Colors.ts",
-      content: `/**
- * Color tokens for light and dark themes.
- * Used by Themed components and navigation theming.
- */
-export const Colors = {
+export const THEME = {
   light: {
-    text: "#11181C",
-    background: "#fff",
-    tint: "#0a7ea4",
-    tabIconDefault: "#687076",
-    tabIconSelected: "#0a7ea4",
+    background: 'hsl(0 0% 100%)',
+    foreground: 'hsl(0 0% 3.9%)',
+    card: 'hsl(0 0% 100%)',
+    cardForeground: 'hsl(0 0% 3.9%)',
+    popover: 'hsl(0 0% 100%)',
+    popoverForeground: 'hsl(0 0% 3.9%)',
+    primary: 'hsl(0 0% 9%)',
+    primaryForeground: 'hsl(0 0% 98%)',
+    secondary: 'hsl(0 0% 96.1%)',
+    secondaryForeground: 'hsl(0 0% 9%)',
+    muted: 'hsl(0 0% 96.1%)',
+    mutedForeground: 'hsl(0 0% 45.1%)',
+    accent: 'hsl(0 0% 96.1%)',
+    accentForeground: 'hsl(0 0% 9%)',
+    destructive: 'hsl(0 84.2% 60.2%)',
+    border: 'hsl(0 0% 89.8%)',
+    input: 'hsl(0 0% 89.8%)',
+    ring: 'hsl(0 0% 63%)',
+    radius: '0.625rem',
+    chart1: 'hsl(12 76% 61%)',
+    chart2: 'hsl(173 58% 39%)',
+    chart3: 'hsl(197 37% 24%)',
+    chart4: 'hsl(43 74% 66%)',
+    chart5: 'hsl(27 87% 67%)',
   },
   dark: {
-    text: "#ECEDEE",
-    background: "#151718",
-    tint: "#fff",
-    tabIconDefault: "#9BA1A6",
-    tabIconSelected: "#fff",
+    background: 'hsl(0 0% 3.9%)',
+    foreground: 'hsl(0 0% 98%)',
+    card: 'hsl(0 0% 3.9%)',
+    cardForeground: 'hsl(0 0% 98%)',
+    popover: 'hsl(0 0% 3.9%)',
+    popoverForeground: 'hsl(0 0% 98%)',
+    primary: 'hsl(0 0% 98%)',
+    primaryForeground: 'hsl(0 0% 9%)',
+    secondary: 'hsl(0 0% 14.9%)',
+    secondaryForeground: 'hsl(0 0% 98%)',
+    muted: 'hsl(0 0% 14.9%)',
+    mutedForeground: 'hsl(0 0% 63.9%)',
+    accent: 'hsl(0 0% 14.9%)',
+    accentForeground: 'hsl(0 0% 98%)',
+    destructive: 'hsl(0 70.9% 59.4%)',
+    border: 'hsl(0 0% 14.9%)',
+    input: 'hsl(0 0% 14.9%)',
+    ring: 'hsl(300 0% 45%)',
+    radius: '0.625rem',
+    chart1: 'hsl(220 70% 50%)',
+    chart2: 'hsl(160 60% 45%)',
+    chart3: 'hsl(30 80% 55%)',
+    chart4: 'hsl(280 65% 60%)',
+    chart5: 'hsl(340 75% 55%)',
+  },
+};
+
+export const NAV_THEME: Record<'light' | 'dark', Theme> = {
+  light: {
+    ...DefaultTheme,
+    colors: {
+      background: THEME.light.background,
+      border: THEME.light.border,
+      card: THEME.light.card,
+      notification: THEME.light.destructive,
+      primary: THEME.light.primary,
+      text: THEME.light.foreground,
+    },
+  },
+  dark: {
+    ...DarkTheme,
+    colors: {
+      background: THEME.dark.background,
+      border: THEME.dark.border,
+      card: THEME.dark.card,
+      notification: THEME.dark.destructive,
+      primary: THEME.dark.primary,
+      text: THEME.dark.foreground,
+    },
   },
 };
 `,
     },
 
-    // ─── src/types/index.ts ─────────────────────────────────────────────
+    // ─── types/index.ts ─────────────────────────────────────────────────
     {
       path: "types/index.ts",
       content: `/** Global type definitions */
@@ -418,6 +304,7 @@ export {};
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
     }
@@ -427,62 +314,111 @@ export {};
 `,
     },
 
-    // ─── tailwind.config.js ──────────────────────────────────────────────
+    // ─── components.json (rnr CLI compatibility) ─────────────────────────
+    {
+      path: "components.json",
+      content: `{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "global.css",
+    "baseColor": "neutral",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  }
+}
+`,
+    },
+
+    // ─── tailwind.config.js (rnr official) ──────────────────────────────
     {
       path: "tailwind.config.js",
-      content: `/** @type {import('tailwindcss').Config} */
+      content: `const { hairlineWidth } = require('nativewind/theme');
+
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./app/**/*.{js,jsx,ts,tsx}",
-    "./components/**/*.{js,jsx,ts,tsx}",
-    "./modules/**/*.{js,jsx,ts,tsx}",
-  ],
-  presets: [require("nativewind/preset")],
+  darkMode: 'class',
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  presets: [require('nativewind/preset')],
   theme: {
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
         },
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+      borderWidth: {
+        hairline: hairlineWidth(),
+      },
+      keyframes: {
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
   },
-  plugins: [],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+  plugins: [require('tailwindcss-animate')],
 };
 `,
     },
 
-    // ─── metro.config.js ─────────────────────────────────────────────────
+    // ─── metro.config.js (rnr official: inlineRem: 16) ──────────────────
     {
       path: "metro.config.js",
       content: `const { getDefaultConfig } = require("expo/metro-config");
@@ -490,7 +426,7 @@ const { withNativeWind } = require("nativewind/metro");
 
 const config = getDefaultConfig(__dirname);
 
-module.exports = withNativeWind(config, { input: "./global.css" });
+module.exports = withNativeWind(config, { input: "./global.css", inlineRem: 16 });
 `,
     },
 
@@ -510,7 +446,7 @@ module.exports = withNativeWind(config, { input: "./global.css" });
 `,
     },
 
-    // ─── global.css (NativeWind CSS variables for rnr components) ─────────
+    // ─── global.css (rnr official CSS variables) ─────────────────────────
     {
       path: "global.css",
       content: `@tailwind base;
@@ -520,46 +456,55 @@ module.exports = withNativeWind(config, { input: "./global.css" });
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 63%;
+    --radius: 0.625rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
-  .dark {
-    --background: 240 10% 3.9%;
+  .dark:root {
+    --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --destructive: 0 70.9% 59.4%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 300 0% 45%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 `,

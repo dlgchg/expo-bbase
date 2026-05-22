@@ -20,20 +20,6 @@ const uiReusablesModule: ModuleDef = {
   },
   devDependencies: {},
   files: [
-    // ─── lib/utils.ts ────────────────────────────────────────────────────
-    {
-      path: "lib/utils.ts",
-      content: lines(
-        'import { type ClassValue, clsx } from "clsx";',
-        'import { twMerge } from "tailwind-merge";',
-        "",
-        "export function cn(...inputs: ClassValue[]) {",
-        "  return twMerge(clsx(inputs));",
-        "}",
-        ""
-      ),
-    },
-
     // ─── components/ui/text.tsx ──────────────────────────────────────────
     {
       path: "components/ui/text.tsx",

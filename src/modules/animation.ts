@@ -4,11 +4,12 @@ import { lines } from "../utils/lines";
 const animationModule: ModuleDef = {
   id: "animation",
   name: "动画/手势",
-  description: "Reanimated 3 + Gesture Handler",
+  description: "Reanimated 4 + Gesture Handler + Worklets",
   defaultChecked: false,
   dependencies: {
     "react-native-reanimated": "~4.1.1",
     "react-native-gesture-handler": "~2.28.0",
+    "react-native-worklets": "0.5.1",
   },
   devDependencies: {},
   files: [
@@ -68,7 +69,9 @@ const animationModule: ModuleDef = {
       ),
     },
   ],
-  babelPlugins: ["react-native-reanimated/plugin"],
+  // Reanimated v4 Babel plugin is auto-managed by babel-preset-expo (SDK 54+)
+  // No need to manually add react-native-reanimated/plugin
+  babelPlugins: [],
 };
 
 export default animationModule;

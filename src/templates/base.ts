@@ -502,7 +502,7 @@ module.exports = withNativeWind(config, { input: "./global.css" });
   api.cache(true);
   return {
     presets: [
-      ["babel-preset-expo", { jsxImportSource: "nativewind" }],
+      ["babel-preset-expo", { jsxImportSource: "nativewind", reanimated: false, worklets: false }],
       "nativewind/babel",
     ],
     plugins: [],

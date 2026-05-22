@@ -14,6 +14,20 @@ const animationModule: ModuleDef = {
   devDependencies: {},
   files: [
     {
+      path: "babel.config.js",
+      content: `module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: [
+      ["babel-preset-expo", { jsxImportSource: "nativewind" }],
+      "nativewind/babel",
+    ],
+    plugins: [],
+  };
+};
+`,
+    },
+    {
       path: "src/modules/animation/index.ts",
       content: lines(
         'export { FadeIn, FadeOut, SlideIn, SlideOut, ScaleIn, ScaleOut } from "./transitions";'
@@ -69,8 +83,9 @@ const animationModule: ModuleDef = {
       ),
     },
   ],
-  // Reanimated v4 Babel plugin is auto-managed by babel-preset-expo (SDK 54+)
-  // No need to manually add react-native-reanimated/plugin
+  // When animation module is selected, babel.config.js is overwritten above
+  // to re-enable babel-preset-expo's auto-detection of reanimated/worklets plugins
+  // (since those packages will be installed as dependencies)
   babelPlugins: [],
 };
 

@@ -2,6 +2,7 @@ import chalk from "chalk";
 import prompts from "prompts";
 import ora from "ora";
 import path from "path";
+import fse from "fs-extra";
 import { Command } from "commander";
 import { registerCreateCommand } from "./commands/create";
 import { modules, getModulesByIds } from "./modules";
@@ -201,9 +202,7 @@ async function updateAppJson(
   projectName: string
 ): Promise<void> {
   const appJsonPath = path.join(targetDir, "app.json");
-  const appJson = await import("fs-extra").then((fs) =>
-    fs.readJson(appJsonPath)
-  );
+  const appJson = await fse.readJson(appJsonPath);
 
   // Collect all plugin configs
   const existingPlugins: (string | [string, Record<string, unknown>])[] =
@@ -241,9 +240,8 @@ async function updateBabelConfig(
   selectedModules: ModuleDef[]
 ): Promise<void> {
   const babelPath = path.join(targetDir, "babel.config.js");
-  const fs = await import("fs-extra");
 
-  let content = await fs.readFile(babelPath, "utf-8");
+  let content = await fse.readFile(babelPath, "utf-8");
 
   const extraPlugins: string[] = [];
   for (const mod of selectedModules) {
@@ -261,7 +259,7 @@ async function updateBabelConfig(
       /plugins:\s*\[([^\]]*)\]/,
       `plugins: [$1${pluginStrings ? ",\n" + pluginStrings : ""}]`
     );
-    await fs.writeFile(babelPath, content, "utf-8");
+    await fse.writeFile(babelPath, content, "utf-8");
   }
 }
 
@@ -273,7 +271,7 @@ async function updateLayoutFile(
   selectedModules: ModuleDef[]
 ): Promise<void> {
   const layoutPath = path.join(targetDir, "app/_layout.tsx");
-  const fs = await import("fs-extra");
+  const fs = fse;
 
   let content = await fs.readFile(layoutPath, "utf-8");
 

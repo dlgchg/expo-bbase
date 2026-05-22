@@ -98,16 +98,6 @@ const storageModule: ModuleDef = {
       ),
     },
   ],
-  appConfig: {
-    plugins: [
-      [
-        "react-native-mmkv",
-        {
-          MMKV_APP_ID: "app-storage",
-        },
-      ],
-    ],
-  },
 };
 
 export default storageModule;

@@ -152,6 +152,7 @@ export function generateBasePackageJson(
       "@rn-primitives/label": "^1.1.0",
       "@rn-primitives/separator": "^1.1.0",
       "@rn-primitives/alert-dialog": "^1.1.0",
+      "@rn-primitives/portal": "^1.1.0",
     },
     devDependencies: {
       "@types/react": "~19.1.0",

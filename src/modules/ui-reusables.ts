@@ -15,6 +15,7 @@ const uiReusablesModule: ModuleDef = {
     "@rn-primitives/label": "^1.1.0",
     "@rn-primitives/separator": "^1.1.0",
     "@rn-primitives/alert-dialog": "^1.1.0",
+    "@rn-primitives/portal": "^1.1.0",
     "react-native-svg": "^15.8.0",
   },
   devDependencies: {},

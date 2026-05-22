@@ -18,7 +18,7 @@ import type { ModuleDef, ProjectConfig } from "./types";
 import { execa } from "execa";
 
 /** CLI version — bump this when publishing */
-const CLI_VERSION = "1.5.0";
+const CLI_VERSION = "1.6.0";
 
 /** Config file name stored in project root */
 const CONFIG_FILE = ".expo-bbase.json";
@@ -202,22 +202,9 @@ export async function createProject(projectName: string): Promise<void> {
       fse.copySync(assetsSource, assetsTarget);
     }
 
-    // ─── Step 5: Generate and merge package.json ──────────────────────
+    // ─── Step 5: Generate package.json (all deps in base) ──────────────
     spinner.text = "Generating package.json...";
     const pkgJson = generateBasePackageJson(projectName);
-
-    const allDeps: Record<string, string> = {};
-    const allDevDeps: Record<string, string> = {};
-    for (const mod of selectedModuleDefs) {
-      Object.assign(allDeps, mod.dependencies);
-      Object.assign(allDevDeps, mod.devDependencies);
-    }
-
-    Object.assign(pkgJson.dependencies as Record<string, string>, allDeps);
-    Object.assign(
-      pkgJson.devDependencies as Record<string, string>,
-      allDevDeps
-    );
 
     const pkgPath = path.join(targetDir, "package.json");
     await writeJson(pkgPath, pkgJson);
@@ -346,20 +333,10 @@ export async function upgradeProject(targetDir: string): Promise<void> {
 
     // ─── Step 2: Update dependencies in package.json ─────────────────
     spinner.text = "Updating dependencies...";
-    const allDeps: Record<string, string> = {};
-    const allDevDeps: Record<string, string> = {};
-    for (const mod of selectedModuleDefs) {
-      Object.assign(allDeps, mod.dependencies);
-      Object.assign(allDevDeps, mod.devDependencies);
-    }
-
-    // Also update base dependencies
+    // All deps are now in base — just merge the full base deps
     const basePkg = generateBasePackageJson(config.projectName);
-    Object.assign(allDeps, basePkg.dependencies as Record<string, string>);
-    Object.assign(
-      allDevDeps,
-      basePkg.devDependencies as Record<string, string>
-    );
+    const allDeps = basePkg.dependencies as Record<string, string>;
+    const allDevDeps = basePkg.devDependencies as Record<string, string>;
 
     const pkgPath = path.join(absDir, "package.json");
     await mergeDependencies(pkgPath, allDeps, allDevDeps);
@@ -532,17 +509,10 @@ export async function addModule(
       }
     }
 
-    // ─── Step 2: Merge dependencies into existing package.json ───────
+    // ─── Step 2: No need to merge deps — all deps are already in base ──
     spinner.text = "Updating dependencies...";
-    const allDeps: Record<string, string> = {};
-    const allDevDeps: Record<string, string> = {};
-    for (const mod of newModuleDefs) {
-      Object.assign(allDeps, mod.dependencies);
-      Object.assign(allDevDeps, mod.devDependencies);
-    }
-
-    const pkgPath = path.join(absDir, "package.json");
-    await mergeDependencies(pkgPath, allDeps, allDevDeps);
+    // All module dependencies are included by default in the base package.json.
+    // The "add" command only needs to write the code/template files.
 
     // ─── Step 3: Update app.json plugins ─────────────────────────────
     spinner.text = "Updating app.json...";

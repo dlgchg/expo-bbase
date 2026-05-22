@@ -9,7 +9,7 @@ const animationModule: ModuleDef = {
   dependencies: {
     "react-native-reanimated": "~4.1.1",
     "react-native-gesture-handler": "~2.28.0",
-    "react-native-worklets": "0.5.1",
+    "react-native-worklets": "~0.5.1",
   },
   devDependencies: {},
   files: [

@@ -231,6 +231,9 @@ MIT
 
 ## 更新日志
 
+### v1.3.5
+- 🔧 **修复 Facebook 登录模块**：移除已废弃的 `expo-facebook`（SDK 54 不再包含），改用 `expo-auth-session` + `expo-web-browser` 实现 Facebook OAuth 登录
+
 ### v1.3.4
 - 🔧 **目录结构修复**：去除 `src/` 层，模块文件（`modules/`、`api/`、`stores/` 等）与 `app/` 平级
 - 📝 修正 Facebook 登录模块描述（SDK 54 不再支持 `expo-facebook`，改用 `expo-auth-session`）

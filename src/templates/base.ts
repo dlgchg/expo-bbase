@@ -458,11 +458,10 @@ module.exports = {
     {
       path: "metro.config.js",
       content: `const { getDefaultConfig } = require("expo/metro-config");
-const { withTailwind } = require("@expo/metro-config/tailwind");
 
 const config = getDefaultConfig(__dirname);
 
-module.exports = withTailwind(config);
+module.exports = config;
 `,
     },
 
